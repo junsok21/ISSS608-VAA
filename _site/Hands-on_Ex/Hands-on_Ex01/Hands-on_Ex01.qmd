@@ -1,0 +1,80 @@
+---
+title: "Hands-on Exercise 1"
+author: "JS K"
+---
+
+# 1.2 Getting Started
+
+## 1.2.1 Install and launching R packages
+
+The code chunk below uses p_load() of pacman package to check if tidyverse packages are installed in the computer. If they are, then they will be launched into R.
+
+```{r}
+pacman::p_load(tidyverse)
+```
+
+## 1.2.2 Importing the data
+
+```{r}
+exam_data <- read.csv("data/Exam_data.csv")
+```
+
+## Plotting a simple bar chart
+
+```{r}
+#| echo: false
+ggplot(data = exam_data,
+       aes(x = RACE)) +
+  geom_bar()
+```
+
+### 1.7.5 Modifying a geometric object by changing *aes()*
+
+```{r}
+#| echo: false
+ggplot(data=exam_data, 
+       aes(x= MATHS, 
+           fill = GENDER)) +
+  geom_histogram(bins=20, 
+                 color="grey30")
+```
+
+### 1.8.1 Working with `stat - the stat_summary method`
+
+```{r}
+#| echo: false
+ggplot(data=exam_data, 
+       aes(y = MATHS, x= GENDER)) +
+  geom_boxplot() +
+  stat_summary(geom = "point",       
+               fun.y="mean",         
+               colour ="red",        
+               size=4)       
+```
+
+### 1.10.2 Changing the y- and x-axis range (adjust range)
+
+```{r}
+#| echo: false
+ggplot(data=exam_data, 
+       aes(x= MATHS, y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(method=lm, 
+              size=0.5) +  
+  coord_cartesian(xlim=c(0,100),
+                  ylim=c(0,100))
+```
+
+### 2.4.2 Working with hrbthems package
+
+```{r}
+#| echo: false
+ggplot(data=exam_data, 
+             aes(x = MATHS)) +
+  geom_histogram(bins=20, 
+                 boundary = 100,
+                 color="grey25", 
+                 fill="grey90") +
+  theme_gray() +
+  ggtitle("Distribution of Maths scores") 
+```
