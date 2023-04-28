@@ -65,6 +65,16 @@ ggplot(data=exam_data,
                   ylim=c(0,100))
 ```
 
+ggrepel
+
+```{r}
+library(ggrepel)
+ggplot(mtcars, aes(wt, mpg, label = rownames(mtcars))) +
+  geom_text_repel() +
+  geom_point(color = 'red') +
+  theme_classic(base_size = 16)
+```
+
 ### 2.4.2 Working with hrbthems package
 
 ```{r}
@@ -77,4 +87,15 @@ ggplot(data=exam_data,
                  fill="grey90") +
   theme_gray() +
   ggtitle("Distribution of Maths scores") 
+```
+
+```{r}
+ggplot(data=exam_data, 
+             aes(x = MATHS)) +
+  geom_histogram(bins=20, 
+                 boundary = 100,
+                 color="grey25", 
+                 fill="grey90") +
+  ggtitle("Distribution of Maths scores") +
+  theme_economist()
 ```
