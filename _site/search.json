@@ -82,5 +82,12 @@
     "title": "In-class_Ex04",
     "section": "The plot",
     "text": "The plot"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
+    "title": "Take-home_Ex01",
+    "section": "",
+    "text": "pacman:: p_load(ggplot2, ggiraph, ggstatsplot, rstatix, gt, patchwork, tidyverse)"
   }
 ]

@@ -23,6 +23,16 @@ website:
             href: "In-class_Ex/In-class_Ex03/In-class_Ex03.html"
           - text: "In-class Exercise4"
             href: "In-class_Ex/In-class_Ex04/In-class_Ex04.html"
+    - text: "Take-home Exercise"
+      menu:
+      - text: "Take-home Exercise1"
+        href: "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html"
+      - text: "Take-home Exercise2"
+        href: "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html"
+      - text: "Take-home Exercise3"
+        href: "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html"
+      - text: "Take-home Exercise4"
+        href: "Take-home_Ex/Take-home_Ex04/Take-home_Ex04.html"
     right:
       - href: index.qmd
         text: Home

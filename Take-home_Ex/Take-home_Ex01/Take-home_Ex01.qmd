@@ -1,0 +1,12 @@
+---
+title: "Take-home_Ex01"
+author: "Junseok K."
+---
+
+```{r}
+pacman:: p_load(ggplot2, ggiraph, ggstatsplot, rstatix, gt, patchwork, tidyverse)
+```
+
+```{r}
+
+```
