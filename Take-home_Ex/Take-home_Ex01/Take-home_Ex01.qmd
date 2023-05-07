@@ -4,9 +4,106 @@ author: "Junseok K."
 ---
 
 ```{r}
-pacman:: p_load(ggplot2, ggiraph, ggstatsplot, rstatix, gt, patchwork, tidyverse)
+pacman:: p_load(ggplot2, ggiraph, ggstatsplot, rstatix, gt, patchwork, tidyverse, patchwork, ggdist, png, gganimate, dplyr, skimr)
+```
+
+
+```{r}
+Parts <- read_csv("data/Participants.csv")
+```
+
+
+```{r}
+Fin <- read_csv("data/FinancialJournal.csv")
+```
+#Make EducationLevel and Household Size as Factors
+
+```{r}
+Parts <- Parts %>%
+  mutate(educationLevel = as.factor(educationLevel))
+```
+
+
+```{r}
+Parts <- Parts %>%
+  mutate(householdSize = as.factor(householdSize))
 ```
 
 ```{r}
+Parts <- Parts %>%
+  mutate(interestGroup = as.factor(interestGroup))
+```
+
+
+```{r}
+Parts <- Parts %>%
+  mutate(participantId = as.integer(participantId))
+```
+
+```{r}
+Fin <- Fin %>%
+  mutate(category = as.factor(category))
+```
+
+#DT transformation
+
+```{r}
+```
+
+
+```{r}
+Fin$Month_Yr <- format(as.Date(Fin$timestamp), "%Y-%m")
+```
+
+
+```{r}
+skimr::skim(Fin)
+```
+
+#Pivot Columns
+
+```{r}
+Fin_Final <- Fin %>%
+  group_by(participantId, category) %>%
+  summarise(amount = sum(amount)) %>%
+  pivot_wider(names_from = category, values_from = amount)
+  
+```
+#Change NA to 0
+
+```{r}
+Fin_Final[is.na(Fin_Final)] <- 0
+```
+
+
+#Add new columns
+```{r}
+Fin_Final <- Fin_Final %>%
+   mutate(Cost_of_living = Education + Food + Recreation + Shelter)
 
 ```
+
+```{r}
+Fin_Final <- Fin_Final %>%
+   mutate(Total_Income = Wage + RentAdjustment)
+
+```
+
+```{r}
+Fin_Final <- Fin_Final %>%
+   mutate(Total_Savings = Cost_of_living + Total_Income)
+
+```
+
+
+```{r}
+Parts <- subset(Parts, select = -c(participantID))
+```
+
+
+#Combine 2 tables together
+
+```{r}
+combined_table <- merge(Parts, Fin_Final, by = "participantId")
+```
+
