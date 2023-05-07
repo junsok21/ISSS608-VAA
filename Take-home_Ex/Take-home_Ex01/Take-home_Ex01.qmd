@@ -96,10 +96,6 @@ Fin_Final <- Fin_Final %>%
 ```
 
 
-```{r}
-Parts <- subset(Parts, select = -c(participantID))
-```
-
 
 #Combine 2 tables together
 
