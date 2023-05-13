@@ -50,6 +50,9 @@ Fin <- Fin %>%
 
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 Fin$Month_Yr <- format(as.Date(Fin$timestamp), "%Y-%m")
 ```
 
@@ -57,6 +60,9 @@ Fin$Month_Yr <- format(as.Date(Fin$timestamp), "%Y-%m")
 #Pivot Columns
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 Fin_Final <- Fin %>%
   group_by(participantId, category) %>%
   summarise(amount = sum(amount)) %>%
@@ -66,12 +72,18 @@ Fin_Final <- Fin %>%
 #Change NA to 0
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 Fin_Final[is.na(Fin_Final)] <- 0
 ```
 
 
-#Add new columns
+#Add new columns Cost_of_living, Total_Income, and Total_Savings
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 Fin_Final <- Fin_Final %>%
    mutate(Cost_of_living = Education + Food + Recreation + Shelter)
 
@@ -87,26 +99,56 @@ Fin_Final <- Fin_Final %>%
 #Combine 2 tables together
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 combined_table <- merge(Parts, Fin_Final, by = "participantId")
 ```
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 kable(head(combined_table), "simple")
 ```
 
+#Skim the Combined Table
+
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 skimr::skim(combined_table)
 ```
 
 
+
+#Export file
 ```{r}
+write.csv(combined_table, "combined_table.csv", row.names = FALSE)
+```
+
+
+#QQ Line test to test normality
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 ggplot(combined_table,
        aes(sample=Total_Savings)) +
   stat_qq()
   stat_qq_line()
 ```
+#QQ Stats - based on the result below (the low p value and the fat that the points are not aligned well with the stright line), 
+we are unable to confirm normality assumption on the Total_Savings distribution. 
+Therefore, non-parametric test will be used for hypthesis testing. Note that the null hypothesis is no difference between 
+Total_Savings between different education levels
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
+
 qq <- ggplot(combined_table,
              aes(sample=Total_Savings)) +
   stat_qq() +
@@ -124,7 +166,19 @@ qq + table_png
 ```
 
 
+#Median is used instead of mean, because i could not get a chance to check the outliers due to time constraints.
+
 ```{r}
+
+#Order of Education variables by median of Total_Savings
+
+# Create a boxplot
+ggplot(combined_table, aes(x=educationLevel, y=Total_Savings)) +
+  geom_boxplot()
+
+
+# Perform non-parametric ANOVA test
+kruskal.test(Total_Savings ~ educationLevel, data = combined_table)
 
 ```
 
