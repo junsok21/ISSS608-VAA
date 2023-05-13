@@ -257,9 +257,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
+<p>Install R Packages</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span> <span class="fu">p_load</span>(ggplot2, ggiraph, ggstatsplot, rstatix, gt, patchwork, tidyverse, patchwork, ggdist, png, gganimate, dplyr, skimr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span> <span class="fu">p_load</span>(ggplot2, ggiraph, ggstatsplot, rstatix, gt, patchwork, tidyverse, patchwork, ggdist, png, gganimate, dplyr, skimr, knitr, rstatix, gt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Load the Data</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Parts <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/Participants.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -288,51 +290,215 @@ dttm (1): timestamp
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
 </div>
-<p>#Make EducationLevel and Household Size as Factors</p>
+<p>Data Prep</p>
+<p>#Make EducationLevel, interestGroup, category, and Household Size as Factors</p>
 <div class="cell">
+<details>
+<summary>Show code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Parts <span class="ot">&lt;-</span> Parts <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">educationLevel =</span> <span class="fu">as.factor</span>(educationLevel))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">educationLevel =</span> <span class="fu">as.factor</span>(educationLevel))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>Parts <span class="ot">&lt;-</span> Parts <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">householdSize =</span> <span class="fu">as.factor</span>(householdSize))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>Parts <span class="ot">&lt;-</span> Parts <span class="sc">%&gt;%</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">interestGroup =</span> <span class="fu">as.factor</span>(interestGroup))</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>Parts <span class="ot">&lt;-</span> Parts <span class="sc">%&gt;%</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">participantId =</span> <span class="fu">as.integer</span>(participantId))</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>Fin <span class="ot">&lt;-</span> Fin <span class="sc">%&gt;%</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">category =</span> <span class="fu">as.factor</span>(category))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>#DateTime transformation</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Fin<span class="sc">$</span>Month_Yr <span class="ot">&lt;-</span> <span class="fu">format</span>(<span class="fu">as.Date</span>(Fin<span class="sc">$</span>timestamp), <span class="st">"%Y-%m"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>#Pivot Columns</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Fin_Final <span class="ot">&lt;-</span> Fin <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(participantId, category) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">amount =</span> <span class="fu">sum</span>(amount)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> category, <span class="at">values_from =</span> amount)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'participantId'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+</div>
+<p>#Change NA to 0</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Fin_Final[<span class="fu">is.na</span>(Fin_Final)] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>#Add new columns</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Fin_Final <span class="ot">&lt;-</span> Fin_Final <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Cost_of_living =</span> Education <span class="sc">+</span> Food <span class="sc">+</span> Recreation <span class="sc">+</span> Shelter)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>Fin_Final <span class="ot">&lt;-</span> Fin_Final <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Total_Income =</span> Wage <span class="sc">+</span> RentAdjustment)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>Fin_Final <span class="ot">&lt;-</span> Fin_Final <span class="sc">%&gt;%</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Total_Savings =</span> Cost_of_living <span class="sc">+</span> Total_Income)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>#Combine 2 tables together</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>combined_table <span class="ot">&lt;-</span> <span class="fu">merge</span>(Parts, Fin_Final, <span class="at">by =</span> <span class="st">"participantId"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Parts <span class="ot">&lt;-</span> Parts <span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">householdSize =</span> <span class="fu">as.factor</span>(householdSize))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(combined_table), <span class="st">"simple"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th>participantId h</th>
+<th>ouseholdSize h</th>
+<th style="text-align: left;">aveKids</th>
+<th>age e</th>
+<th>ducationLevel i</th>
+<th style="text-align: left;">nterestGroup</th>
+<th style="text-align: left;">joviality</th>
+<th style="text-align: left;">Education</th>
+<th style="text-align: center;">Food</th>
+<th style="text-align: left;">Recreation</th>
+<th style="text-align: center;">Shelter</th>
+<th style="text-align: center;">Wage</th>
+<th style="text-align: left;">RentAdjustment</th>
+<th style="text-align: left;">Cost_of_living</th>
+<th style="text-align: left;">Total_Income</th>
+<th style="text-align: left;">Total_Savings</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>3</td>
+<td style="text-align: left;">TRUE</td>
+<td>36</td>
+<td>HighSchoolOrCollege</td>
+<td style="text-align: left;">H</td>
+<td style="text-align: left;">0.0016267</td>
+<td style="text-align: left;">-494.0699</td>
+<td style="text-align: center;">-3141.976</td>
+<td style="text-align: left;">-4384.067</td>
+<td style="text-align: center;">-7214.852</td>
+<td style="text-align: center;">109816.59</td>
+<td style="text-align: left;">0.000</td>
+<td style="text-align: left;">-15234.97</td>
+<td style="text-align: left;">109816.59</td>
+<td style="text-align: left;">94581.623</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>3</td>
+<td style="text-align: left;">TRUE</td>
+<td>25</td>
+<td>HighSchoolOrCollege</td>
+<td style="text-align: left;">B</td>
+<td style="text-align: left;">0.3280865</td>
+<td style="text-align: left;">-494.0699</td>
+<td style="text-align: center;">-3167.336</td>
+<td style="text-align: left;">-6637.511</td>
+<td style="text-align: center;">-7214.852</td>
+<td style="text-align: center;">96374.93</td>
+<td style="text-align: left;">0.000</td>
+<td style="text-align: left;">-17513.77</td>
+<td style="text-align: left;">96374.93</td>
+<td style="text-align: left;">78861.160</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>3</td>
+<td style="text-align: left;">TRUE</td>
+<td>35</td>
+<td>HighSchoolOrCollege</td>
+<td style="text-align: left;">A</td>
+<td style="text-align: left;">0.3934696</td>
+<td style="text-align: left;">-166.5618</td>
+<td style="text-align: center;">-3467.314</td>
+<td style="text-align: left;">-4172.006</td>
+<td style="text-align: center;">-7235.188</td>
+<td style="text-align: center;">85107.52</td>
+<td style="text-align: left;">0.000</td>
+<td style="text-align: left;">-15041.07</td>
+<td style="text-align: left;">85107.52</td>
+<td style="text-align: left;">70066.451</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>3</td>
+<td style="text-align: left;">TRUE</td>
+<td>21</td>
+<td>HighSchoolOrCollege</td>
+<td style="text-align: left;">I</td>
+<td style="text-align: left;">0.1380634</td>
+<td style="text-align: left;">-494.0699</td>
+<td style="text-align: center;">-3395.537</td>
+<td style="text-align: left;">-4704.288</td>
+<td style="text-align: center;">-7214.852</td>
+<td style="text-align: center;">82269.33</td>
+<td style="text-align: left;">0.000</td>
+<td style="text-align: left;">-15808.75</td>
+<td style="text-align: left;">82269.33</td>
+<td style="text-align: left;">66460.587</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>3</td>
+<td style="text-align: left;">TRUE</td>
+<td>43</td>
+<td>Bachelors</td>
+<td style="text-align: left;">H</td>
+<td style="text-align: left;">0.8573967</td>
+<td style="text-align: left;">-166.5618</td>
+<td style="text-align: center;">-3262.336</td>
+<td style="text-align: left;">-6315.910</td>
+<td style="text-align: center;">-18410.462</td>
+<td style="text-align: center;">106055.17</td>
+<td style="text-align: left;">4809.283</td>
+<td style="text-align: left;">-28155.27</td>
+<td style="text-align: left;">110864.45</td>
+<td style="text-align: left;">82709.183</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>3</td>
+<td style="text-align: left;">TRUE</td>
+<td>32</td>
+<td>HighSchoolOrCollege</td>
+<td style="text-align: left;">D</td>
+<td style="text-align: left;">0.7729578</td>
+<td style="text-align: left;">-166.5618</td>
+<td style="text-align: center;">-4145.111</td>
+<td style="text-align: left;">-5139.370</td>
+<td style="text-align: center;">-7800.437</td>
+<td style="text-align: center;">23208.92</td>
+<td style="text-align: left;">0.000</td>
+<td style="text-align: left;">-17251.48</td>
+<td style="text-align: left;">23208.92</td>
+<td style="text-align: left;">5957.441</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Parts <span class="ot">&lt;-</span> Parts <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">interestGroup =</span> <span class="fu">as.factor</span>(interestGroup))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Parts <span class="ot">&lt;-</span> Parts <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">participantId =</span> <span class="fu">as.integer</span>(participantId))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Fin <span class="ot">&lt;-</span> Fin <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">category =</span> <span class="fu">as.factor</span>(category))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>#DT transformation</p>
-<div class="cell">
-
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Fin<span class="sc">$</span>Month_Yr <span class="ot">&lt;-</span> <span class="fu">format</span>(<span class="fu">as.Date</span>(Fin<span class="sc">$</span>timestamp), <span class="st">"%Y-%m"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(Fin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(combined_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <caption>Data summary</caption>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Name</td>
-<td style="text-align: left;">Fin</td>
+<td style="text-align: left;">combined_table</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Number of rows</td>
-<td style="text-align: left;">1513636</td>
+<td style="text-align: left;">1011</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Number of columns</td>
-<td style="text-align: left;">5</td>
+<td style="text-align: left;">16</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">_______________________</td>
@@ -343,77 +509,36 @@ dttm (1): timestamp
 <td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">character</td>
-<td style="text-align: left;">1</td>
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">3</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">factor</td>
+<td style="text-align: left;">logical</td>
 <td style="text-align: left;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">numeric</td>
-<td style="text-align: left;">2</td>
+<td style="text-align: left;">12</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">POSIXct</td>
-<td style="text-align: left;">1</td>
-</tr>
-<tr class="even">
 <td style="text-align: left;">________________________</td>
 <td style="text-align: left;"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Group variables</td>
 <td style="text-align: left;">None</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Variable type: character</strong></p>
-<table class="table table-sm table-striped">
-<colgroup>
-<col style="width: 19%">
-<col style="width: 13%">
-<col style="width: 19%">
-<col style="width: 5%">
-<col style="width: 5%">
-<col style="width: 8%">
-<col style="width: 12%">
-<col style="width: 15%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">skim_variable</th>
-<th style="text-align: right;">n_missing</th>
-<th style="text-align: right;">complete_rate</th>
-<th style="text-align: right;">min</th>
-<th style="text-align: right;">max</th>
-<th style="text-align: right;">empty</th>
-<th style="text-align: right;">n_unique</th>
-<th style="text-align: right;">whitespace</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Month_Yr</td>
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Variable type: factor</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 13%">
-<col style="width: 9%">
-<col style="width: 13%">
-<col style="width: 7%">
+<col style="width: 15%">
+<col style="width: 10%">
+<col style="width: 14%">
 <col style="width: 8%">
-<col style="width: 47%">
+<col style="width: 9%">
+<col style="width: 40%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -427,29 +552,66 @@ dttm (1): timestamp
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">category</td>
+<td style="text-align: left;">householdSize</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">6</td>
-<td style="text-align: left;">Foo: 790051, Wag: 412659, Rec: 296013, She: 11463</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">2: 373, 1: 337, 3: 301</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">educationLevel</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">Hig: 525, Bac: 232, Gra: 170, Low: 84</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">interestGroup</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">J: 116, H: 111, G: 108, F: 106</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: logical</strong></p>
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: left;">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">haveKids</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: left;">FAL: 710, TRU: 301</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Variable type: numeric</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 15%">
-<col style="width: 10%">
-<col style="width: 15%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 9%">
-<col style="width: 7%">
-<col style="width: 4%">
-<col style="width: 6%">
+<col style="width: 13%">
 <col style="width: 8%">
-<col style="width: 6%">
+<col style="width: 12%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -471,97 +633,198 @@ dttm (1): timestamp
 <td style="text-align: left;">participantId</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">480.90</td>
-<td style="text-align: right;">295.89</td>
+<td style="text-align: right;">505.00</td>
+<td style="text-align: right;">291.99</td>
 <td style="text-align: right;">0.00</td>
-<td style="text-align: right;">222.00</td>
-<td style="text-align: right;">464</td>
-<td style="text-align: right;">726.0</td>
+<td style="text-align: right;">252.50</td>
+<td style="text-align: right;">505.00</td>
+<td style="text-align: right;">757.50</td>
 <td style="text-align: right;">1010.00</td>
-<td style="text-align: left;">▇▇▇▆▆</td>
+<td style="text-align: left;">▇▇▇▇▇</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">amount</td>
+<td style="text-align: left;">age</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">20.05</td>
-<td style="text-align: right;">111.77</td>
-<td style="text-align: right;">-1562.73</td>
-<td style="text-align: right;">-5.59</td>
-<td style="text-align: right;">-4</td>
-<td style="text-align: right;">21.6</td>
-<td style="text-align: right;">4096.53</td>
-<td style="text-align: left;">▁▇▁▁▁</td>
+<td style="text-align: right;">39.07</td>
+<td style="text-align: right;">12.38</td>
+<td style="text-align: right;">18.00</td>
+<td style="text-align: right;">29.00</td>
+<td style="text-align: right;">39.00</td>
+<td style="text-align: right;">50.00</td>
+<td style="text-align: right;">60.00</td>
+<td style="text-align: left;">▇▇▇▇▇</td>
 </tr>
-</tbody>
-</table>
-<p><strong>Variable type: POSIXct</strong></p>
-<table class="table table-sm table-striped">
-<colgroup>
-<col style="width: 14%">
-<col style="width: 10%">
-<col style="width: 14%">
-<col style="width: 11%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 9%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">skim_variable</th>
-<th style="text-align: right;">n_missing</th>
-<th style="text-align: right;">complete_rate</th>
-<th style="text-align: left;">min</th>
-<th style="text-align: left;">max</th>
-<th style="text-align: left;">median</th>
-<th style="text-align: right;">n_unique</th>
-</tr>
-</thead>
-<tbody>
 <tr class="odd">
-<td style="text-align: left;">timestamp</td>
+<td style="text-align: left;">joviality</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">2022-03-01</td>
-<td style="text-align: left;">2023-02-28 23:55:00</td>
-<td style="text-align: left;">2022-08-25 15:00:00</td>
-<td style="text-align: right;">87366</td>
+<td style="text-align: right;">0.49</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">0.48</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">▇▇▇▇▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Education</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-152.69</td>
+<td style="text-align: right;">316.73</td>
+<td style="text-align: right;">-1184.87</td>
+<td style="text-align: right;">-166.56</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Food</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-3663.13</td>
+<td style="text-align: right;">1644.70</td>
+<td style="text-align: right;">-6889.07</td>
+<td style="text-align: right;">-4996.91</td>
+<td style="text-align: right;">-3586.59</td>
+<td style="text-align: right;">-3277.72</td>
+<td style="text-align: right;">-32.00</td>
+<td style="text-align: left;">▁▅▇▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Recreation</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-4098.26</td>
+<td style="text-align: right;">2602.62</td>
+<td style="text-align: right;">-10285.19</td>
+<td style="text-align: right;">-5978.49</td>
+<td style="text-align: right;">-4568.99</td>
+<td style="text-align: right;">-2337.76</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: left;">▁▅▇▃▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shelter</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-7227.57</td>
+<td style="text-align: right;">3808.90</td>
+<td style="text-align: right;">-20232.63</td>
+<td style="text-align: right;">-9895.59</td>
+<td style="text-align: right;">-7845.02</td>
+<td style="text-align: right;">-5101.56</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: left;">▁▁▇▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Wage</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">45101.56</td>
+<td style="text-align: right;">30567.82</td>
+<td style="text-align: right;">2098.36</td>
+<td style="text-align: right;">28095.83</td>
+<td style="text-align: right;">40996.93</td>
+<td style="text-align: right;">57654.05</td>
+<td style="text-align: right;">211734.65</td>
+<td style="text-align: left;">▇▅▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">RentAdjustment</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">54.34</td>
+<td style="text-align: right;">309.74</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">4809.28</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cost_of_living</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-15141.64</td>
+<td style="text-align: right;">7204.85</td>
+<td style="text-align: right;">-32554.69</td>
+<td style="text-align: right;">-19809.35</td>
+<td style="text-align: right;">-16693.90</td>
+<td style="text-align: right;">-12632.53</td>
+<td style="text-align: right;">-32.00</td>
+<td style="text-align: left;">▁▃▇▂▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total_Income</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">45155.90</td>
+<td style="text-align: right;">30585.73</td>
+<td style="text-align: right;">2098.36</td>
+<td style="text-align: right;">28098.78</td>
+<td style="text-align: right;">41024.54</td>
+<td style="text-align: right;">57654.05</td>
+<td style="text-align: right;">211734.65</td>
+<td style="text-align: left;">▇▅▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total_Savings</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30014.26</td>
+<td style="text-align: right;">28636.21</td>
+<td style="text-align: right;">1276.08</td>
+<td style="text-align: right;">9420.94</td>
+<td style="text-align: right;">22757.71</td>
+<td style="text-align: right;">41150.84</td>
+<td style="text-align: right;">195298.22</td>
+<td style="text-align: left;">▇▂▁▁▁</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>#Pivot Columns</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Fin_Final <span class="ot">&lt;-</span> Fin <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(participantId, category) <span class="sc">%&gt;%</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">amount =</span> <span class="fu">sum</span>(amount)) <span class="sc">%&gt;%</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> category, <span class="at">values_from =</span> amount)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'participantId'. You can override using the
-`.groups` argument.</code></pre>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(combined_table,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">sample=</span>Total_Savings)) <span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>geom_path: na.rm = FALSE
+stat_qq_line: distribution = function (p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE) 
+.Call(C_qnorm, p, mean, sd, lower.tail, log.p), dparams = list(), na.rm = FALSE, line.p = c(0.25, 0.75), fullrange = FALSE
+position_identity </code></pre>
 </div>
 </div>
-<p>#Change NA to 0</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Fin_Final[<span class="fu">is.na</span>(Fin_Final)] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>qq <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(combined_table,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">sample=</span>Total_Savings)) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>() <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>sw_t <span class="ot">&lt;-</span> combined_table <span class="sc">%&gt;%</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shapiro_test</span>(Total_Savings) <span class="sc">%&gt;%</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>tmp<span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">'.png'</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu">gtsave</span>(sw_t, tmp)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>table_png <span class="ot">&lt;-</span> png<span class="sc">::</span><span class="fu">readPNG</span>(tmp,<span class="at">native =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>qq <span class="sc">+</span> table_png</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
-<p>#Add new columns</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Fin_Final <span class="ot">&lt;-</span> Fin_Final <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Cost_of_living =</span> Education <span class="sc">+</span> Food <span class="sc">+</span> Recreation <span class="sc">+</span> Shelter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>Fin_Final <span class="ot">&lt;-</span> Fin_Final <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Total_Income =</span> Wage <span class="sc">+</span> RentAdjustment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Fin_Final <span class="ot">&lt;-</span> Fin_Final <span class="sc">%&gt;%</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Total_Savings =</span> Cost_of_living <span class="sc">+</span> Total_Income)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>#Combine 2 tables together</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>combined_table <span class="ot">&lt;-</span> <span class="fu">merge</span>(Parts, Fin_Final, <span class="at">by =</span> <span class="st">"participantId"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
 </div>
 
 
