@@ -28,3 +28,5 @@ MC1_edges <- as_tibble(MC1$links) %>%
   select(source, target, type, weight, key)
 ```
 
+
+
