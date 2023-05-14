@@ -238,7 +238,7 @@ ggplot(data = combined_table, aes(x = reorder(educationLevel, -Total_Savings, FU
   stat_pointinterval(width = 0.95, point_estimate = "median", interval = "qi", point_color = "red")+
   labs(title = "Visualising Uncertainty in median estimates of Total_Savings by Education Level", 
        subtitle = "Quantiles intervals (95% and 99%) of Total_Savings by Education level",
-       x = "Education Level", y = "Total Savings")
+       x = "Education Level", y = "Total Savings")+
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
