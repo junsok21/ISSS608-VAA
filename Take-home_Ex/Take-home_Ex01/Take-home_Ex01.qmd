@@ -203,7 +203,7 @@ ggplot(combined_table,
   scale_x_continuous(
     name = "Joviality",
     limits = c(0, 1)
-    ) +n
+  ) +
   scale_y_discrete(name = NULL, expand = expansion(add = c(0.2, 2.6))) +
   theme_ridges()
 ```
@@ -258,13 +258,9 @@ plot_ly(data = combined_table,
     annotations = annot
   )
 ```
-```
-
-
 
 
 ```{r}
-
 
 interval <- c(0, 20000, 40000, 60000, 80000, 100000, Inf)
 
