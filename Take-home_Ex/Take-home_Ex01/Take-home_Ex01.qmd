@@ -1,15 +1,47 @@
 ---
-title: "Take-home_Ex01"
-author: "Junseok K."
+title: "Take Home Exercise 1"
+subtitle: "Uncover the relationships between Educations, Savings, and Joviality to Re-boost the City"
+author: "Junseok Kim"
+date: 5 February 2023
+date-format: medium
+execute:
+  warning: false
+  error: false
+  message: false
+format:
+  html:
+    page-layout: full
+    toc: true
+    smooth-scroll: true
+    code-fold: true
+    code-summary: "Show the code"
+    code-block-border-left: "#63B9A1"
+    code-block-bg: "#f2f5f9"
+    code-copy: hover
+    title-block-banner: true
+    fig-align: center
+    reader-mode: true
 ---
 
-Install R Packages
+## 1. Overview
+
+In this exercise, I have attempted uncovering the relationship between Education Level, Savings, and Joviality to Boost Revitalize the City
+
+## 2. Load R Packages & Data
+
+### 2.1 Load R Packages
+
+Some required libraries include:
+
+-   <b>ggiraph, plotly</b>: To create interactive visualization
+-   <b>ggstatsplot</b>: To generate graphics with details from statistical tests
+-   <b>tidyverse</b>: A suite of data tidying up and visualization packages such as tidyr, ggplot2, knitr and so on
 
 ```{r}
 pacman:: p_load(ggplot2, ggiraph, ggridges, ggthemes, colorspace, ggstatsplot, rstatix, gt, patchwork, tidyverse, patchwork, ggdist, png, gganimate, dplyr, skimr, knitr, rstatix, gt, plotly, DT, scales)
 ```
 
-Load the Data
+### 2.2 Load the Data
 
 ```{r}
 Parts <- read_csv("data/Participants.csv")
@@ -19,9 +51,9 @@ Parts <- read_csv("data/Participants.csv")
 Fin <- read_csv("data/FinancialJournal.csv")
 ```
 
-Data Prep
+## 3. Preparation Steps
 
-#Make EducationLevel, interestGroup, category, and Household Size as Factors
+### 3.1 Make EducationLevel, interestGroup, category, and Household Size as Factors
 
 ```{r}
 #| code-fold: true
@@ -43,7 +75,7 @@ Fin <- Fin %>%
   mutate(category = as.factor(category))
 ```
 
-#DateTime transformation
+### 3.2 DateTime transformation
 
 ```{r}
 #| code-fold: true
@@ -52,7 +84,7 @@ Fin <- Fin %>%
 Fin$Month_Yr <- format(as.Date(Fin$timestamp), "%Y-%m")
 ```
 
-#Pivot Columns
+### 3.3 Pivot Columns
 
 ```{r}
 #| code-fold: true
@@ -65,7 +97,7 @@ Fin_Final <- Fin %>%
   
 ```
 
-#Change NA to 0
+### 3.4 Change NA to 0
 
 ```{r}
 #| code-fold: true
@@ -74,7 +106,7 @@ Fin_Final <- Fin %>%
 Fin_Final[is.na(Fin_Final)] <- 0
 ```
 
-#Add new columns Cost_of_living, Total_Income, and Total_Savings
+### 3.5 Add new columns Cost_of_living, Total_Income, and Total_Savings
 
 ```{r}
 #| code-fold: true
@@ -91,7 +123,7 @@ Fin_Final <- Fin_Final %>%
 
 ```
 
-#Combine 2 tables together
+### 3.6 Combine the two tables together
 
 ```{r}
 #| code-fold: true
@@ -100,6 +132,8 @@ Fin_Final <- Fin_Final %>%
 combined_table <- merge(Parts, Fin_Final, by = "participantId")
 ```
 
+### 3.7 View the table snippet using kable function
+
 ```{r}
 #| code-fold: true
 #| code-summary: "Show code"
@@ -107,34 +141,36 @@ combined_table <- merge(Parts, Fin_Final, by = "participantId")
 kable(head(combined_table), "simple")
 ```
 
-#Skim the Combined Table
 
-```{r}
-#| code-fold: true
-#| code-summary: "Show code"
-
-skimr::skim(combined_table)
-```
-
-#Export file
+### 3.8 Export file for review
 
 ```{r}
 write.csv(combined_table, "combined_table.csv", row.names = FALSE)
 ```
 
-#QQ Line test to test normality
+## 4. Normality Test
+
+### 4.1 QQ Plot
 
 ```{r}
 #| code-fold: true
 #| code-summary: "Show code"
 
 ggplot(combined_table,
-       aes(sample=Total_Savings)) +
-  stat_qq()
+       aes(sample=Total_Savings))+
+       labs(x = "x", y = "Total Savings"
+       ) +
+  stat_qq() +
   stat_qq_line()
 ```
 
-#QQ Stats - based on the result below (the low p value and the fat that the points are not aligned well with the stright line), we are unable to confirm normality assumption on the Total_Savings distribution. Therefore, non-parametric test will be used for hypthesis testing. Note that the null hypothesis is no difference between Total_Savings between different education levels
+### 4.2 Non-Paramatric Test result
+
+::: callout-note
+Based on the result below (the low p value and the fat that the points are not aligned well with the stright line), we are unable to confirm normality assumption on the Total_Savings distribution. Therefore, non-parametric test will be used for hypthesis testing. Note that the null hypothesis is no difference between Total_Savings between different education levels
+:::
+
+
 
 ```{r}
 #| code-fold: true
@@ -142,6 +178,8 @@ ggplot(combined_table,
 
 qq <- ggplot(combined_table,
              aes(sample=Total_Savings)) +
+         labs(x = "x", y = "Total Savings"
+       ) +
   stat_qq() +
   stat_qq_line()
 
@@ -149,41 +187,70 @@ sw_t <- combined_table %>%
   shapiro_test(Total_Savings) %>%
   gt()
 
-tmp<- tempfile(fileext = '.png')
+tmp <- tempfile(fileext = '.png')
 gtsave(sw_t, tmp)
-table_png <- png::readPNG(tmp,native = TRUE)
+table_png <- png::readPNG(tmp, native = TRUE)
 
 qq + table_png
 ```
 
-#Median is used instead of mean, because i could not get a chance to filter out the outliers due to time constraints.
+## 5. Exploratory Analysis & Insights
+
+### 5.1.1 Create a Box Plot for median of Total_Savings by Education Level
+
+
+::: callout-note
+Median was used instead of mean, because i could not get a chance to filter out the outliers due to time constraints.
+:::
 
 ```{r}
-
-#Order of Education variables by median of Total_Savings
 
 # Create a boxplot
 ggplot(combined_table, aes(x= reorder(educationLevel, -Total_Savings, FUN = median), y=Total_Savings)) +
   geom_boxplot() +
-  labs(title = "Boxplot of Total_Savings by Education Level")
+  labs(title = "Boxplot of Total_Savings by Education Level",
+       x = "Education Level", y = "Total Savings")
+```
 
+
+::: callout-tip
+Note the education level was ordered in Descending order, based on Total Savings
+:::
+
+### 5.1.2 ANOVA test
+
+```{r}
 # Perform non-parametric ANOVA test
 kruskal.test(Total_Savings ~ educationLevel, data = combined_table)
 
 ```
+
+
+::: callout-note
+We can reject the null hypothesis that there's no significant difference in Total Savings based on educationLevel. There is a difference in Total Savings depending on education levels!
+:::
+
+### 5.2 Plot Uncertanties in Median Total Savings by Education Level
 
 ```{r}
 
 ggplot(data = combined_table, aes(x = reorder(educationLevel, -Total_Savings, FUN = median), y = Total_Savings)) +
   stat_pointinterval(width = 0.95, point_estimate = "median", interval = "qi", point_color = "red")+
   labs(title = "Visualising Uncertainty in median estimates of Total_Savings by Education Level", 
-       subtitle = "Quantiles intervals (95% and 99%) of Total_Savings by Education level")
+       subtitle = "Quantiles intervals (95% and 99%) of Total_Savings by Education level",
+       x = "Education Level", y = "Total Savings")
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-#Insights: Graduates and Bachelors have higher uncertainties, due to presence of outliers.
-Limitation of distributions along the vertical axis: there are only one point and two error bars for each educationLevel, this doesn't tell us much about distribution of data points at each Saving level. Hence we try plotting jittered plot in combination with violin plot.
 
+::: callout-note
+Graduates and Bachelors face higher uncertainties, due to presence of outliers. Limitation of distributions along the vertical axis: there are only one point and two error bars for each educationLevel, This doesn't tell us much about distribution of data points at each Saving level. Hence we try plotting jittered plot in combination with violin plot.
+:::
+
+
+### 5.2.1 Jittered + Violin plots 
+
+#### Looks much more informative now! The gap in Total Savings between Bachelors and Graduate degrees are not that significant. But these groups have bigger difference compared to the lower education groups. 
 
 ```{r}
  # Create a jittered plot
@@ -193,6 +260,8 @@ ggplot(combined_table, aes(x = educationLevel, y = Total_Savings)) +
   labs(x = "Education Level", y = "Total Savings")
 ```
 
+
+### 5.3 EDA between Joviality and Interest group
 
 ```{r}
 ggplot(combined_table, 
@@ -204,13 +273,18 @@ ggplot(combined_table,
     name = "Joviality",
     limits = c(0, 1)
   ) +
-  scale_y_discrete(name = NULL, expand = expansion(add = c(0.2, 2.6))) +
+  scale_y_discrete(name = "Interest_Group", expand = expansion(add = c(0.2, 2.6))) +
   theme_ridges()
 ```
-#insight = interestGroup A, B, F, and H have semi-obvious declining pattern between joviality 0.50-1.00.
-I suggest the city authority pay special attention to make these people happier - to turn them around to revitalize the city.
 
-#Creating an basic interactive scatter plot: Plot_ly() method
+
+::: callout-note
+interestGroup A, B, F, and H have semi-obvious declining pattern between joviality 0.50-1.00. I suggest the city authority pay special attention to make these people happier - to turn them around to revitalize the city.
+:::
+
+## 6 Interactive Plots: Does Savings Matter for Joviality?
+
+### 6.1 Basic interactive scatter plot: Plot_ly() method
 
 ```{r}
 plot_ly(data = combined_table,
@@ -220,8 +294,15 @@ plot_ly(data = combined_table,
 ```
 
 
-#The above plot is a bit hard to read as many points are aggregated together, especially for lower Savings group, 
-#Hence, I decided to make the chart more interactive by adding a drop down menu to select the educationLevel. 
+::: callout-note
+Interestingly, there is no apparent linear relationship between household savings and joviality. However, people with higher household savings tend to have lower joviality in general. I recommend the city council to take some measure for mental health of these people so these families can stay in the city longer. 
+:::
+
+::: callout-note
+The above plot is a bit hard to read as many points are aggregated together, especially for lower Savings group, Hence, I decided to make the chart more interactive by adding a drop down menu to select the educationLevel.
+:::
+
+### 6.2 Interactive Plot with Drop Down Menu
 
 ```{r}
 
@@ -259,6 +340,18 @@ plot_ly(data = combined_table,
   )
 ```
 
+::: callout-note
+Education level matters for household savings. Generally the higher the education level is, the higher the household saving is.
+
+:::
+
+### 6.3 Median Joviality Analysis by Savings Group
+
+::: callout-note
+For further analysis, I have binned the Savings amount into 6 groups, and found out median joviality of each group.
+Interestingly, the higher the saving-the lower the joviality relationship is more apparent.
+:::
+
 
 ```{r}
 
@@ -284,3 +377,18 @@ plot_ly(med_joviality,
 ```
 
 
+
+## 7 Summary
+
+
+::: callout-note
+Insight 1: The presence of outliers makes the uncertainty higher for graduates and bachelors, and the limited information in the original plot was improved by using a jittered and violin plot.
+:::
+
+::: callout-note
+Insight 2: There is a semi-obvious declining pattern in joviality for interest groups A, B, F, and H between joviality 0.50-1.00, suggesting that the city authority should pay allocate budgets to improving happiness in these groups for their wellbeing.
+:::
+
+::: callout-note
+Insight 3: there is no clear linear relationship between household savings and joviality, but individuals with higher household savings tend to have lower joviality overall. This suggests that mental health support may be beneficial for these individuals. The city council can consider providing resources for mental health services and support groups
+:::
