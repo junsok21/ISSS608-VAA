@@ -6,9 +6,8 @@ author: "Junseok K."
 Install R Packages
 
 ```{r}
-pacman:: p_load(ggplot2, ggiraph, ggstatsplot, rstatix, gt, patchwork, tidyverse, patchwork, ggdist, png, gganimate, dplyr, skimr, knitr, rstatix, gt)
+pacman:: p_load(ggplot2, ggiraph, ggridges, ggthemes, colorspace, ggstatsplot, rstatix, gt, patchwork, tidyverse, patchwork, ggdist, png, gganimate, dplyr, skimr, knitr, rstatix, gt, plotly, DT, scales)
 ```
-
 
 Load the Data
 
@@ -19,11 +18,10 @@ Parts <- read_csv("data/Participants.csv")
 ```{r}
 Fin <- read_csv("data/FinancialJournal.csv")
 ```
+
 Data Prep
 
 #Make EducationLevel, interestGroup, category, and Household Size as Factors
-
-
 
 ```{r}
 #| code-fold: true
@@ -45,9 +43,7 @@ Fin <- Fin %>%
   mutate(category = as.factor(category))
 ```
 
-
 #DateTime transformation
-
 
 ```{r}
 #| code-fold: true
@@ -55,7 +51,6 @@ Fin <- Fin %>%
 
 Fin$Month_Yr <- format(as.Date(Fin$timestamp), "%Y-%m")
 ```
-
 
 #Pivot Columns
 
@@ -69,6 +64,7 @@ Fin_Final <- Fin %>%
   pivot_wider(names_from = category, values_from = amount)
   
 ```
+
 #Change NA to 0
 
 ```{r}
@@ -78,8 +74,8 @@ Fin_Final <- Fin %>%
 Fin_Final[is.na(Fin_Final)] <- 0
 ```
 
-
 #Add new columns Cost_of_living, Total_Income, and Total_Savings
+
 ```{r}
 #| code-fold: true
 #| code-summary: "Show code"
@@ -94,7 +90,6 @@ Fin_Final <- Fin_Final %>%
    mutate(Total_Savings = Cost_of_living + Total_Income)
 
 ```
-
 
 #Combine 2 tables together
 
@@ -121,13 +116,11 @@ kable(head(combined_table), "simple")
 skimr::skim(combined_table)
 ```
 
-
-
 #Export file
+
 ```{r}
 write.csv(combined_table, "combined_table.csv", row.names = FALSE)
 ```
-
 
 #QQ Line test to test normality
 
@@ -140,10 +133,8 @@ ggplot(combined_table,
   stat_qq()
   stat_qq_line()
 ```
-#QQ Stats - based on the result below (the low p value and the fat that the points are not aligned well with the stright line), 
-we are unable to confirm normality assumption on the Total_Savings distribution. 
-Therefore, non-parametric test will be used for hypthesis testing. Note that the null hypothesis is no difference between 
-Total_Savings between different education levels
+
+#QQ Stats - based on the result below (the low p value and the fat that the points are not aligned well with the stright line), we are unable to confirm normality assumption on the Total_Savings distribution. Therefore, non-parametric test will be used for hypthesis testing. Note that the null hypothesis is no difference between Total_Savings between different education levels
 
 ```{r}
 #| code-fold: true
@@ -165,20 +156,135 @@ table_png <- png::readPNG(tmp,native = TRUE)
 qq + table_png
 ```
 
-
-#Median is used instead of mean, because i could not get a chance to check the outliers due to time constraints.
+#Median is used instead of mean, because i could not get a chance to filter out the outliers due to time constraints.
 
 ```{r}
 
 #Order of Education variables by median of Total_Savings
 
 # Create a boxplot
-ggplot(combined_table, aes(x=educationLevel, y=Total_Savings)) +
-  geom_boxplot()
-
+ggplot(combined_table, aes(x= reorder(educationLevel, -Total_Savings, FUN = median), y=Total_Savings)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Total_Savings by Education Level")
 
 # Perform non-parametric ANOVA test
 kruskal.test(Total_Savings ~ educationLevel, data = combined_table)
 
 ```
+
+```{r}
+
+ggplot(data = combined_table, aes(x = reorder(educationLevel, -Total_Savings, FUN = median), y = Total_Savings)) +
+  stat_pointinterval(width = 0.95, point_estimate = "median", interval = "qi", point_color = "red")+
+  labs(title = "Visualising Uncertainty in median estimates of Total_Savings by Education Level", 
+       subtitle = "Quantiles intervals (95% and 99%) of Total_Savings by Education level")
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+#Insights: Graduates and Bachelors have higher uncertainties, due to presence of outliers.
+Limitation of distributions along the vertical axis: there are only one point and two error bars for each educationLevel, this doesn't tell us much about distribution of data points at each Saving level. Hence we try plotting jittered plot in combination with violin plot.
+
+
+```{r}
+ # Create a jittered plot
+ggplot(combined_table, aes(x = educationLevel, y = Total_Savings)) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  geom_violin(fill = "lightgray", alpha =0.2) +
+  labs(x = "Education Level", y = "Total Savings")
+```
+
+
+```{r}
+ggplot(combined_table, 
+       aes(x = joviality, 
+           y = interestGroup)) +
+  geom_density_ridges(
+    scale = 2, alpha = 0.5) +
+  scale_x_continuous(
+    name = "Joviality",
+    limits = c(0, 1)
+    ) +n
+  scale_y_discrete(name = NULL, expand = expansion(add = c(0.2, 2.6))) +
+  theme_ridges()
+```
+#insight = interestGroup A, B, F, and H have semi-obvious declining pattern between joviality 0.50-1.00.
+I suggest the city authority pay special attention to make these people happier - to turn them around to revitalize the city.
+
+#Creating an basic interactive scatter plot: Plot_ly() method
+
+```{r}
+plot_ly(data = combined_table,
+              x = ~Total_Savings,
+              y = ~joviality,
+              color = ~educationLevel)
+```
+
+
+#The above plot is a bit hard to read as many points are aggregated together, especially for lower Savings group, 
+#Hence, I decided to make the chart more interactive by adding a drop down menu to select the educationLevel. 
+
+```{r}
+
+#Annotation variable for the dropdown menu defined.
+annot <- list(list(text = "Education Level:",
+                   x = 1.3,
+                   y = 0.7,
+                   xref = 'paper',
+                   yref = 'paper',
+                   showarrow = FALSE))
+
+# Define the button options
+button_options <- list(
+  list(label = "Graduate", method = "update", args = list(list(visible = c(FALSE, TRUE, FALSE, FALSE)))),
+  list(label = "Bachelor's", method = "update", args = list(list(visible = c(TRUE, FALSE, FALSE, FALSE)))),
+  list(label = "HighSchoolOrColleage", method = "update", args = list(list(visible = c(FALSE, FALSE, TRUE, FALSE)))),
+  list(label = "LowerThan HighSchool", method = "update", args = list(list(visible = c(FALSE, FALSE, FALSE, TRUE))))
+)
+
+# Create the plot_ly plot with dropdown menu
+plot_ly(data = combined_table,
+        x = ~Total_Savings,
+        y = ~joviality,
+        color = ~educationLevel,
+        type = "scatter",
+        mode = "markers",
+        marker = list(size = 10)) %>%
+  layout(
+    updatemenus = list(
+      list(type = "dropdown",
+           x = 1.3, y = 0.65,
+           buttons = button_options)
+    ),
+    annotations = annot
+  )
+```
+```
+
+
+
+
+```{r}
+
+
+interval <- c(0, 20000, 40000, 60000, 80000, 100000, Inf)
+
+combined_table$Savings_group <- cut(combined_table$Total_Savings, breaks = interval, right = FALSE)
+
+levels(combined_table$Savings_group) <- c("0-20K", "20-40K", "40-60K", "60-80K", "80-100K", "100K+" )
+
+                                      
+med_joviality <- aggregate(joviality ~ Savings_group, data=combined_table, FUN = median) 
+
+plot_ly(med_joviality, 
+              x = ~Savings_group,
+              y = ~joviality, type = "scatter", mode = "markers") %>%
+  layout(
+    title = "Median Joviality by Savings Group",
+    xaxis = list(
+      title = "Savings Group"
+    )
+  )
+
+```
+
 
