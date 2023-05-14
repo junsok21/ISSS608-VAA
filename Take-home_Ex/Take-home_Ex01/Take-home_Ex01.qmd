@@ -164,12 +164,7 @@ ggplot(combined_table,
   stat_qq_line()
 ```
 
-### 4.2 Non-Paramatric Test result
-
-::: callout-note
-Based on the result below (the p value and the fact that the points are not aligned well with the stright line), we are unable to confirm normality assumption on the Total_Savings distribution. Therefore, non-parametric test will be used for hypthesis testing. Note that the null hypothesis is no difference between Total_Savings between different education levels
-:::
-
+### 4.2 QQ Plot Statistics to confirm normality assumption
 
 
 ```{r}
@@ -193,6 +188,10 @@ table_png <- png::readPNG(tmp, native = TRUE)
 
 qq + table_png
 ```
+::: callout-note
+Based on the result above and below (the p value and the fact that the points are not aligned well with the stright line), we are unable to confirm normality assumption on the Total_Savings distribution. Therefore, non-parametric test will be used for subsequent ANOVA \ testing done in section 5.1.2
+:::
+
 
 ## 5. Exploratory Analysis & Insights
 
@@ -217,7 +216,7 @@ ggplot(combined_table, aes(x= reorder(educationLevel, -Total_Savings, FUN = medi
 Note the education level has been ordered in Descending order, based on Total Savings
 :::
 
-### 5.1.2 ANOVA test
+### 5.1.2 ANOVA test (non-Parametric)
 
 ```{r}
 # Perform non-parametric ANOVA test
