@@ -167,7 +167,7 @@ ggplot(combined_table,
 ### 4.2 Non-Paramatric Test result
 
 ::: callout-note
-Based on the result below (the low p value and the fat that the points are not aligned well with the stright line), we are unable to confirm normality assumption on the Total_Savings distribution. Therefore, non-parametric test will be used for hypthesis testing. Note that the null hypothesis is no difference between Total_Savings between different education levels
+Based on the result below (the p value and the fact that the points are not aligned well with the stright line), we are unable to confirm normality assumption on the Total_Savings distribution. Therefore, non-parametric test will be used for hypthesis testing. Note that the null hypothesis is no difference between Total_Savings between different education levels
 :::
 
 
@@ -214,7 +214,7 @@ ggplot(combined_table, aes(x= reorder(educationLevel, -Total_Savings, FUN = medi
 
 
 ::: callout-tip
-Note the education level was ordered in Descending order, based on Total Savings
+Note the education level has been ordered in Descending order, based on Total Savings
 :::
 
 ### 5.1.2 ANOVA test
@@ -227,7 +227,7 @@ kruskal.test(Total_Savings ~ educationLevel, data = combined_table)
 
 
 ::: callout-note
-We can reject the null hypothesis that there's no significant difference in Total Savings based on educationLevel. There is a difference in Total Savings depending on education levels!
+Looking at the test's p value, we reject the null hypothesis that there's no significant difference in Total Savings based on educationLevel. There is a significant difference in Total Savings depending on education level.
 :::
 
 ### 5.2 Plot Uncertanties in Median Total Savings by Education Level
@@ -244,7 +244,7 @@ ggplot(data = combined_table, aes(x = reorder(educationLevel, -Total_Savings, FU
 
 
 ::: callout-note
-Graduates and Bachelors face higher uncertainties, due to presence of outliers. Limitation of distributions along the vertical axis: there are only one point and two error bars for each educationLevel, This doesn't tell us much about distribution of data points at each Saving level. Hence we try plotting jittered plot in combination with violin plot.
+Graduates and Bachelors face higher uncertainties, due to presence of outliers. Limitation of distributions along the vertical axis: there are only one point and two error bars for each educationLevel, This doesn't tell us much about distribution of data points at each Saving level. Hence, we try plotting jittered plot in combination with violin plot.
 :::
 
 
@@ -279,7 +279,7 @@ ggplot(combined_table,
 
 
 ::: callout-note
-interestGroup A, B, F, and H have semi-obvious declining pattern between joviality 0.50-1.00. I suggest the city authority pay special attention to make these people happier - to turn them around to revitalize the city.
+interestGroup A, B, F, and H have semi-obvious declining pattern in joviality range especially in 0.50-1.00. I suggest the city authority pay extra attention to make these people happier - to turn them around in an effort to revitalize the city.
 :::
 
 ## 6 Interactive Plots: Does Savings Matter for Joviality?
@@ -390,5 +390,5 @@ Insight 2: There is a semi-obvious declining pattern in joviality for interest g
 :::
 
 ::: callout-note
-Insight 3: there is no clear linear relationship between household savings and joviality, but individuals with higher household savings tend to have lower joviality overall. This suggests that mental health support may be beneficial for these individuals. The city council can consider providing resources for mental health services and support groups
+Insight 3: there is no clear linear relationship between household savings and joviality, but individuals with higher household savings tend to have lower joviality overall. This suggests that mental health support may be beneficial for these individuals. The city council can consider providing resources for mental health services and support groups.
 :::
