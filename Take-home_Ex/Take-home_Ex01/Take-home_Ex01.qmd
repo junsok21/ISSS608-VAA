@@ -25,7 +25,7 @@ format:
 
 ## 1. Overview
 
-In this exercise, I have attempted uncovering the relationship between Education Level, Savings, and Joviality to Boost Revitalize the City
+In this exercise, I have attempted uncovering relationships between Educations, Savings, and Joviality to re-vitalize the City
 
 ## 2. Load R Packages & Data
 
@@ -261,7 +261,7 @@ ggplot(combined_table, aes(x = educationLevel, y = Total_Savings)) +
 ```
 
 
-### 5.3 EDA between Joviality and Interest group
+### 5.3 Ridge Plot EDA between Joviality and Interest group
 
 ```{r}
 ggplot(combined_table, 
