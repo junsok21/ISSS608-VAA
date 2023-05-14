@@ -40,14 +40,19 @@ website:
         text: Home
       - about.qmd
 
+links:
+  - name: LinkedIn
+    url: "https://www.linkedin.com/in/junseokkim1/"
+  - name: Github
+    url: "https://github.com/junsok21"
+
 format:
   html:
     code-fold: true
     code-summary: "Show the code"
-    theme: morph
+    theme: lumen
     css: styles.css
     toc: true
-
 
 editor: visual
 

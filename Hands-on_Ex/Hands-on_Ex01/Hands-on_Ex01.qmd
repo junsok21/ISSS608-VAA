@@ -96,6 +96,5 @@ ggplot(data=exam_data,
                  boundary = 100,
                  color="grey25", 
                  fill="grey90") +
-  ggtitle("Distribution of Maths scores") +
-  theme_economist()
+  ggtitle("Distribution of Maths scores")
 ```
