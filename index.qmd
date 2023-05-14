@@ -1,5 +1,5 @@
 ---
-title: "ISSS608-VAA Junseok Kim"
+title: "ISSS608-VAA JS"
 ---
 
-Welcome to **ISSS608 Visual Analytics and Appliations homepage**. In this website, you will find my coursework prepared for this course.
+I'm Junseok ("JS"). Welcome to my page for **ISSS608**. In this website, you will find my coursework prepared for this course.

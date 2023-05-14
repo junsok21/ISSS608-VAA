@@ -70,7 +70,7 @@ ggrepel
 ```{r}
 library(ggrepel)
 ggplot(mtcars, aes(wt, mpg, label = rownames(mtcars))) +
-  geom_text_repel() +
+  geom_text_repel(max.overlaps = 100) +
   geom_point(color = 'red') +
   theme_classic(base_size = 16)
 ```

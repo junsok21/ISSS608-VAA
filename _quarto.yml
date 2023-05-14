@@ -2,10 +2,20 @@ project:
   type: website
 
 website:
-  title: "ISSS608-VAA"
+  title: "Visual Analytics"
+  page-navigation: true
+  reader-mode: true
   navbar:
+    collapse: true
     left:
-    - text: "Hands-on Exercise"
+    - icon: linkedin
+      href: https://www.linkedin.com/in/junseokkim1/
+    - icon: Github
+      href: https://github.com/junsok21
+    
+    right:
+    - icon: person-square
+      text: "Hands-on Exercise"
       menu:
       - text: "Hands-on Exercise1"
         href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html"
@@ -15,7 +25,8 @@ website:
         href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html"
       - text: "Hands-on Exercise4"
         href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html"
-    - text: "In-class Exercise"
+    - icon: person-square
+      text: "In-class Exercise"
       menu: 
           - text: "In-class Exercise1"
             href: "In-class_Ex/In-class_Ex01/In-class_Ex01.html"
@@ -25,7 +36,8 @@ website:
             href: "In-class_Ex/In-class_Ex04/In-class_Ex04.html"
           - text: "In-class Exercise5"
             href: "In-class_Ex/In-class_Ex05/In-class_Ex05.html"
-    - text: "Take-home Exercise"
+    - icon: graph-up
+      text: "Take-home Exercise"
       menu:
       - text: "Take-home Exercise1"
         href: "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html"
@@ -35,17 +47,7 @@ website:
         href: "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html"
       - text: "Take-home Exercise4"
         href: "Take-home_Ex/Take-home_Ex04/Take-home_Ex04.html"
-    right:
-      - href: index.qmd
-        text: Home
-      - about.qmd
-
-links:
-  - name: LinkedIn
-    url: "https://www.linkedin.com/in/junseokkim1/"
-  - name: Github
-    url: "https://github.com/junsok21"
-
+ 
 format:
   html:
     code-fold: true
