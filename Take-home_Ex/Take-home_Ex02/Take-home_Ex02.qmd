@@ -1,0 +1,43 @@
+---
+title: "Take home 2"
+author: "JS K."
+---
+
+```{r}
+pacman::p_load(jsonlite, tidygraph, ggraph, visNetwork, lubridate, tidyverse)
+```
+
+```{r}
+mc2_data <- 
+  fromJSON("data/mc2_challenge_graph.json")
+```
+
+##Reviewing the imported data
+
+```{r}
+glimpse(mc2_data)
+```
+
+```{r}
+mc2_nodes <- as_tibble(mc2_data$nodes) %>%
+  select(id, shpcountry, rcvcountry)
+```
+
+```{r}
+mc2_edges <- as_tibble(mc2_data$links) %>%
+  mutate(ArrivalDate = ymd(arrivaldate)) %>%
+  mutate(Year = year(ArrivalDate)) %>%
+  select(source, target, ArrivalDate, Year, hscode, valueofgoods_omu, 
+         volumeteu, weightkg, valueofgoodsusd) %>% 
+  distinct()
+```
+
+```{r}
+mc2_edges_aggregated <- mc2_edges %>%
+  filter(hscode == "306170" & Year == "2028") %>%
+  group_by(source, target, hscode, Year) %>%
+    summarise(weights = n()) %>%
+  filter(source!=target) %>%
+  filter(weights > 20) %>%
+  ungroup()
+```
