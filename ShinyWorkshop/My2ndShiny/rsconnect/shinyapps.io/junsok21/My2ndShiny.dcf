@@ -1,0 +1,14 @@
+name: My2ndShiny
+title: My2ndShiny
+username:
+account: junsok21
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9197010
+bundleId: 7270222
+url: https://junsok21.shinyapps.io/My2ndShiny/
+when: 1685168353.99802
+lastSyncTime: 1685168353.99805
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: data/Exam_data.csv|data/mc2_edges_aggregated.rds|data/mc2_nodes_extracted.rds

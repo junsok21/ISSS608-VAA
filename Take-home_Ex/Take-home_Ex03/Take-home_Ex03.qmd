@@ -1,0 +1,28 @@
+---
+title: "take home3"
+author: "JS K."
+---
+
+```{r}
+pacman::p_load(jsonlite, tidygraph, ggraph, visNetwork, lubridate, tidyverse)
+```
+
+```{r}
+mc3_data <- fromJSON("data/MC3.json")
+```
+
+```{r}
+glimpse(mc3_data)
+```
+
+```{r}
+# Checking the number of missing values in each column 
+sum(is.na(mc3_data$type))
+sum(is.na(mc3_data$country))
+sum(is.na(mc3_data$product_services))
+sum(is.na(mc3_data$revenue_omu))
+sum(is.na(mc3_data$id))
+sum(is.na(mc3_data$role))
+```
+
+

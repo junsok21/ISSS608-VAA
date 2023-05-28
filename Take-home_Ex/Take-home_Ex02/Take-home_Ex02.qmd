@@ -3,6 +3,8 @@ title: "Take home 2"
 author: "JS K."
 ---
 
+#1.1 Import Libraries and Datasets
+
 ```{r}
 pacman::p_load(jsonlite, tidygraph, ggraph, visNetwork, lubridate, tidyverse)
 ```
@@ -12,7 +14,22 @@ mc2_data <-
   fromJSON("data/mc2_challenge_graph.json")
 ```
 
-##Reviewing the imported data
+```{r}
+tuna <- jsonlite::fromJSON("data/bundles/tuna.json")
+shark <- jsonlite::fromJSON("data/bundles/shark.json")
+salmon <- jsonlite::fromJSON("data/bundles/salmon.json")
+salmon_wgl <- jsonlite::fromJSON("data/bundles/salmon_wgl.json")
+pollock <- jsonlite::fromJSON("data/bundles/pollock.json")
+mackerel <- jsonlite::fromJSON("data/bundles/mackerel.json")
+lichen <- jsonlite::fromJSON("data/bundles/lichen.json")
+herring <- jsonlite::fromJSON("data/bundles/herring.json")
+cod2 <- jsonlite::fromJSON("data/bundles/cod2.json")
+chub_mackerel <- jsonlite::fromJSON("data/bundles/chub_mackerel.json")
+catfish <- jsonlite::fromJSON("data/bundles/catfish.json")
+carp <- jsonlite::fromJSON("data/bundles/carp.json")
+```
+
+#1.2 Review the imported data
 
 ```{r}
 glimpse(mc2_data)
@@ -23,21 +40,163 @@ mc2_nodes <- as_tibble(mc2_data$nodes) %>%
   select(id, shpcountry, rcvcountry)
 ```
 
+#removed columnswith a large number of missing data, namely: valueofgoods_omu, volumeteu, valueofgoodsusd
+
 ```{r}
 mc2_edges <- as_tibble(mc2_data$links) %>%
   mutate(ArrivalDate = ymd(arrivaldate)) %>%
   mutate(Year = year(ArrivalDate)) %>%
-  select(source, target, ArrivalDate, Year, hscode, valueofgoods_omu, 
-         volumeteu, weightkg, valueofgoodsusd) %>% 
+  select(source, target, ArrivalDate, Year, hscode, weightkg) %>% 
   distinct()
 ```
 
 ```{r}
-mc2_edges_aggregated <- mc2_edges %>%
-  filter(hscode == "306170" & Year == "2028") %>%
-  group_by(source, target, hscode, Year) %>%
+length(unique(mc2_edges$hscode))
+```
+
+##removed hscodes that unlikely belong to fishery, based on https://connect2india.com/hs-classification.html. Also removed likely codes for processed foods.
+
+```{r}
+mc2_edges_pure <- mc2_edges[grepl('^301|^302|^303|^305', mc2_edges$hscode), ]
+
+length(unique(mc2_edges_pure$hscode))
+```
+
+# 
+
+```{r}
+mc2_edges_aggregated <- mc2_edges_pure %>%
+  group_by(source, target, Year) %>%
     summarise(weights = n()) %>%
   filter(source!=target) %>%
-  filter(weights > 20) %>%
+  filter(weights > 10) %>%
   ungroup()
+
+glimpse(mc2_edges_aggregated)
+```
+
+#Create Network graph
+
+## Nodes Table & Filter nodes
+
+```{r}
+id1 <- mc2_edges_aggregated %>%
+  select(source) %>%
+  rename(id = source)
+id2 <- mc2_edges_aggregated %>%
+  select(target) %>%
+  rename(id = target)
+mc2_nodes_extracted <- rbind(id1, id2) %>%
+  distinct()
+```
+
+### Taking a deeper look at Tuna Data
+
+#Chose the tuna dataset as the literature review suggests that Tuna is highly related to IUU
+
+```{r}
+glimpse(tuna)
+```
+
+```{r}
+tuna_nodes <- as_tibble(tuna$nodes) %>%
+  select(id, shpcountry, rcvcountry)
+```
+
+```{r}
+tuna_edges <- as_tibble(tuna$links) %>%
+  mutate(Arrivaldate = ymd(arrivaldate)) %>%
+  mutate(Year = year(Arrivaldate)) %>%
+  mutate(MonthYear = format(Arrivaldate, "%B %Y")) %>%
+  select(source, target, hscode, Arrivaldate, MonthYear, valueofgoods_omu)
+
+```
+
+```{r}
+tuna_edges_aggregated <- tuna_edges %>%
+  group_by(source, target) %>%
+    summarise(weights = n()) %>%
+  filter(source!=target) %>%
+  filter(weights > 1) %>%
+  ungroup()
+```
+
+#table graph for Tuna dataset
+
+```{r}
+tuna_graph <- tbl_graph(nodes = tuna_nodes,
+                        edges = tuna_edges_aggregated,
+                        directed = TRUE)
+
+tuna_graph %>%
+  activate(edges) %>%
+  arrange(desc(weights))
+
+tuna_graph
+```
+
+```{r}
+mc2_graph <- tbl_graph(nodes = mc2_nodes_extracted,
+                       edges = mc2_edges_aggregated,
+                       directed = TRUE)
+```
+
+```{r}
+#|echo: false
+mc2_graph
+```
+
+```{r}
+
+```
+
+```{r}
+ggraph(mc2_graph,
+       layout = "fr") +
+  geom_edge_link(aes()) +
+  geom_node_point(aes()) +
+  theme_graph()
+```
+
+```{r}
+write_rds(mc2_nodes_extracted, "data/mc2_nodes_extracted.rds")
+write_rds(mc2_edges_aggregated, "data/mc2_edges_aggregated.rds")
+write_rds(mc2_graph, "data/mc2_graph.rds")
+```
+
+```{r}
+mc2_graph
+```
+
+```{r}
+edges_df <- mc2_graph %>%
+  activate(edges) %>%
+  as_tibble()
+```
+
+```{r}
+nodes_df <- mc2_graph %>%
+  activate(nodes) %>%
+  as.tibble() %>%
+  rename(label = id) %>%
+  mutate(id=row_number()) %>%
+  select(id, label)
+```
+
+```{r}
+visNetwork(nodes_df,
+           edges_df) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visEdges(arrows = "to", 
+           smooth = list(enabled = TRUE, 
+                         type = "curvedCW"))
+```
+
+```{r}
+visNetwork(nodes_df,
+           edges_df) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visOptions(highlightNearest = TRUE,
+             nodesIdSelection = TRUE)
+
 ```

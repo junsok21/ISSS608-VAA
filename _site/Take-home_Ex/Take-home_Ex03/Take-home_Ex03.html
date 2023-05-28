@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="JS K.">
+
+<title>Visual Analytics - take home3</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Visual Analytics</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/junseokkim1/"><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/junsok21"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-hands-on-exercise" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-person-square" role="img">
+</i> 
+ <span class="menu-text">Hands-on Exercise</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-hands-on-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html">
+ <span class="dropdown-text">Hands-on Exercise1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html">
+ <span class="dropdown-text">Hands-on Exercise2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html">
+ <span class="dropdown-text">Hands-on Exercise3</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html">
+ <span class="dropdown-text">Hands-on Exercise4</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-in-class-exercise" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-person-square" role="img">
+</i> 
+ <span class="menu-text">In-class Exercise</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-in-class-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex01/In-class_Ex01.html">
+ <span class="dropdown-text">In-class Exercise1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex03/In-class_Ex03.html">
+ <span class="dropdown-text">In-class Exercise3</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex04/In-class_Ex04.html">
+ <span class="dropdown-text">In-class Exercise4</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex05/In-class_Ex05.html">
+ <span class="dropdown-text">In-class Exercise5</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex06/In-class_Ex06.html">
+ <span class="dropdown-text">In-class Exercise6</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-take-home-exercise" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-graph-up" role="img">
+</i> 
+ <span class="menu-text">Take-home Exercise</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-take-home-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html">
+ <span class="dropdown-text">Take-home Exercise1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html">
+ <span class="dropdown-text">Take-home Exercise2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html">
+ <span class="dropdown-text">Take-home Exercise3</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex04/Take-home_Ex04.html">
+ <span class="dropdown-text">Take-home Exercise4</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-reader-toggle nav-link" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">take home3</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>JS K. </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(jsonlite, tidygraph, ggraph, visNetwork, lubridate, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mc3_data <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(<span class="st">"data/MC3.json"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(mc3_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 5
+ $ directed  : logi FALSE
+ $ graph     : Named list()
+ $ links     :'data.frame': 24038 obs. of  3 variables:
+  ..$ source:List of 24038
+  .. ..$ : chr "Lake Chad  Catchers Limited Liability Company Worldwide"
+  .. ..$ : chr "Lake Chad  Catchers Limited Liability Company Worldwide"
+  .. ..$ : chr "Lake Chad  Catchers Limited Liability Company Worldwide"
+  .. ..$ : chr "Lake Chad  Catchers Limited Liability Company Worldwide"
+  .. ..$ : chr "Lake Chad  Catchers Limited Liability Company Worldwide"
+  .. ..$ : chr "Lake Chad  Catchers Limited Liability Company Worldwide"
+  .. ..$ : chr "Lake Chad  Catchers Limited Liability Company Worldwide"
+  .. ..$ : chr "Wright-Horn"
+  .. ..$ : chr "Weaver LLC"
+  .. ..$ : chr "Peterson-Moore"
+  .. ..$ : chr "Baldwin, Holden and Nelson"
+  .. ..$ : chr "Aqua Advancements Sashimi SE Express"
+  .. ..$ : chr "Aqua Advancements Sashimi SE Express"
+  .. ..$ : chr "Aqua Advancements Sashimi SE Express"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Hernandez-Adams"
+  .. ..$ : chr "Jones-Flores"
+  .. ..$ : chr "Murphy, Cummings and Mendoza"
+  .. ..$ : chr "Martinez Inc"
+  .. ..$ : chr "Lamb, Schaefer and Coffey"
+  .. ..$ : chr "Taylor, Allen and Villa"
+  .. ..$ : chr "Patel, Fisher and Sosa"
+  .. ..$ : chr "Moyer, Jacobs and Thomas"
+  .. ..$ : chr "Punjab s Marine conservation"
+  .. ..$ : chr "Punjab s Marine conservation"
+  .. ..$ : chr "Punjab s Marine conservation"
+  .. ..$ : chr "Punjab s Marine conservation"
+  .. ..$ : chr "Punjab s Marine conservation"
+  .. ..$ : chr "Punjab s Marine conservation"
+  .. ..$ : chr [1:2] "Assam   Limited Liability Company" "Assam   Limited Liability Company"
+  .. ..$ : chr [1:2] "Assam   Limited Liability Company" "Assam   Limited Liability Company"
+  .. ..$ : chr [1:2] "Assam   Limited Liability Company" "Assam   Limited Liability Company"
+  .. ..$ : chr [1:2] "Assam   Limited Liability Company" "Assam   Limited Liability Company"
+  .. ..$ : chr [1:2] "Assam   Limited Liability Company" "Assam   Limited Liability Company"
+  .. ..$ : chr [1:2] "Assam   Limited Liability Company" "Assam   Limited Liability Company"
+  .. ..$ : chr [1:2] "Assam   Limited Liability Company" "Assam   Limited Liability Company"
+  .. ..$ : chr "Ianira Starfish Sagl Import"
+  .. ..$ : chr "Hayden, Campbell and Mendoza"
+  .. ..$ : chr "Torres and Sons"
+  .. ..$ : chr [1:2] "Oceanic Explorers Plc Salt spray" "The Salted Pearl Inc Cargo"
+  .. ..$ : chr [1:2] "Oceanic Explorers Plc Salt spray" "The Salted Pearl Inc Cargo"
+  .. ..$ : chr [1:2] "Oceanic Explorers Plc Salt spray" "The Salted Pearl Inc Cargo"
+  .. ..$ : chr "Saltwater Sisters AS Marine life"
+  .. ..$ : chr "Saltwater Sisters AS Marine life"
+  .. ..$ : chr "Saltwater Sisters AS Marine life"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr [1:2] "The Sea Turtle Company" "The Sea Turtle Company"
+  .. ..$ : chr "Klein, Rice and Garcia"
+  .. ..$ : chr "Morgan-Rodriguez"
+  .. ..$ : chr "Johnson, Roberson and Johnson"
+  .. .. [list output truncated]
+  ..$ target:List of 24038
+  .. ..$ : chr "Erin Flores"
+  .. ..$ : chr "Linda Lee"
+  .. ..$ : chr "Sharon Coleman"
+  .. ..$ : chr "John Rivera"
+  .. ..$ : chr "Stephen Carpenter"
+  .. ..$ : chr "Lynn Everett"
+  .. ..$ : chr "Heather Smith"
+  .. ..$ : chr "Lisa Fisher"
+  .. ..$ : chr "Laurie Evans"
+  .. ..$ : chr "Kenneth Charles"
+  .. ..$ : chr "Jennifer Kennedy"
+  .. ..$ : chr "Desiree Abbott"
+  .. ..$ : chr "Tammy Adams"
+  .. ..$ : chr "Joshua Wong"
+  .. ..$ : chr "Laura Montgomery"
+  .. ..$ : chr "David Payne"
+  .. ..$ : chr "Robyn Roberts"
+  .. ..$ : chr "Lisa Collins"
+  .. ..$ : chr "Stacy Erickson"
+  .. ..$ : chr "Ronald Chen III"
+  .. ..$ : chr "Richard Lewis"
+  .. ..$ : chr "Robert Winters"
+  .. ..$ : chr "Amanda Diaz"
+  .. ..$ : chr "Amanda Gibson"
+  .. ..$ : chr "Martin Thomas"
+  .. ..$ : chr "Matthew Li"
+  .. ..$ : chr "Anita Nguyen"
+  .. ..$ : chr "Ruth Scott"
+  .. ..$ : chr "Mark Powell"
+  .. ..$ : chr "Mark Hughes"
+  .. ..$ : chr "Jared Martinez"
+  .. ..$ : chr "Derek Davis"
+  .. ..$ : chr "Jeremy Schmitt"
+  .. ..$ : chr "Melinda Cobb"
+  .. ..$ : chr "Scott Gutierrez"
+  .. ..$ : chr "Shelley Jones"
+  .. ..$ : chr "Victor Mckenzie"
+  .. ..$ : chr "Brian Zuniga"
+  .. ..$ : chr "Sharon Burns"
+  .. ..$ : chr "Alyssa Galvan"
+  .. ..$ : chr "Ann Anderson"
+  .. ..$ : chr "Marcus Bullock"
+  .. ..$ : chr "Keith Bird"
+  .. ..$ : chr "Thomas Brooks"
+  .. ..$ : chr "Yolanda Bernard"
+  .. ..$ : chr "Jennifer Kerr"
+  .. ..$ : chr "Michael Bush"
+  .. ..$ : chr "Samantha Stevenson"
+  .. ..$ : chr "Jordan Walsh"
+  .. ..$ : chr "Rebecca Huang"
+  .. ..$ : chr "Matthew King"
+  .. ..$ : chr "Lauren Kim"
+  .. ..$ : chr "Natalie Boyle"
+  .. ..$ : chr "Ricky Oconnell"
+  .. ..$ : chr "Susan Miller"
+  .. ..$ : chr "Stephen Fields"
+  .. ..$ : chr "Ryan James"
+  .. ..$ : chr "Tina Long"
+  .. ..$ : chr "Jeffrey Jones"
+  .. ..$ : chr "Monica Anderson"
+  .. ..$ : chr "Sonya Wheeler"
+  .. ..$ : chr "Tanya Compton"
+  .. ..$ : chr "Gene Mccoy"
+  .. ..$ : chr "Benjamin York"
+  .. ..$ : chr "Michaela Short"
+  .. ..$ : chr "Barbara Carey"
+  .. ..$ : chr "Karina Meyer"
+  .. ..$ : chr "Douglas Gonzales"
+  .. ..$ : chr "Keith Camacho"
+  .. ..$ : chr "Taylor Williams"
+  .. ..$ : chr "Patricia Castillo"
+  .. ..$ : chr "Kristin Harris"
+  .. ..$ : chr "Dillon Blankenship"
+  .. ..$ : chr "Brooke Nicholson"
+  .. ..$ : chr "Edward Hess"
+  .. ..$ : chr "Laura Macdonald"
+  .. ..$ : chr "Ronald Ramirez"
+  .. ..$ : chr "Nina Thompson"
+  .. ..$ : chr "Melissa Garcia"
+  .. ..$ : chr "Zachary Murphy"
+  .. ..$ : chr "Nichole Beasley"
+  .. ..$ : chr "Brianna Gonzalez"
+  .. ..$ : chr "Deborah Bailey"
+  .. ..$ : chr "Kathryn Kramer"
+  .. ..$ : chr "Douglas Kelly"
+  .. ..$ : chr "Ruben Johnson"
+  .. ..$ : chr "Carrie Duarte"
+  .. ..$ : chr "Mathew Johnson"
+  .. ..$ : chr "Nichole Barrera"
+  .. ..$ : chr "David Miller"
+  .. ..$ : chr "Kim Noble"
+  .. ..$ : chr "Caitlyn Smith"
+  .. ..$ : chr "Tony Patterson"
+  .. ..$ : chr "Bradley Green"
+  .. ..$ : chr "Mrs. Heather Wilson"
+  .. ..$ : chr "Autumn Daniel"
+  .. ..$ : chr "Dana Mullins"
+  .. ..$ : chr "Roger Boyd"
+  .. ..$ : chr "Jennifer Murphy"
+  .. .. [list output truncated]
+  ..$ type  :List of 24038
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Company Contacts"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. ..$ : chr "Beneficial Owner"
+  .. .. [list output truncated]
+ $ multigraph: logi FALSE
+ $ nodes     :'data.frame': 27622 obs. of  5 variables:
+  ..$ country         :List of 27622
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Utoporiana"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Riodelsol"
+  .. ..$ : chr "Utoporiana"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Coralmarica"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Isliandor"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "Osterivaria"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Kondanovia"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "Alverovia"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Galduzim"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Gavanovia"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Utoporiana"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Utoporiana"
+  .. ..$ : chr "Riodelsol"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Puerto Sol"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Kondanovia"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Marebak"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Sol y Oceana"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Utoporiana"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Puerto Sol"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Rio Isla"
+  .. ..$ : chr "Utoporiana"
+  .. ..$ : chr "Rosvandor"
+  .. ..$ : chr "Kondanovia"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Puerto del Mar"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Azurionix"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Oceanus"
+  .. ..$ : chr "Merigrad"
+  .. ..$ : chr "Coralmarica"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Kondanovia"
+  .. ..$ : chr "Azurionix"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Riodelsol"
+  .. ..$ : chr "Kondanovia"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "ZH"
+  .. ..$ : chr "Utoporiana"
+  .. .. [list output truncated]
+  ..$ id              :List of 27622
+  .. ..$ : chr "Jones LLC"
+  .. ..$ : chr "Coleman, Hall and Lopez"
+  .. ..$ : chr "Aqua Advancements Sashimi SE Express"
+  .. ..$ : chr "Makumba Ltd. Liability Co"
+  .. ..$ : chr "Taylor, Taylor and Farrell"
+  .. ..$ : chr "Harmon, Edwards and Bates"
+  .. ..$ : chr "Punjab s Marine conservation"
+  .. ..$ : chr "Assam   Limited Liability Company"
+  .. ..$ : chr "Ianira Starfish Sagl Import"
+  .. ..$ : chr "Moran, Lewis and Jimenez"
+  .. ..$ : chr "Lee-Coleman"
+  .. ..$ : chr "Oceanic Explorers Plc Salt spray"
+  .. ..$ : chr "Saltwater Sisters AS Marine life"
+  .. ..$ : chr "The Sea Turtle Company"
+  .. ..$ : chr "Smith, Mathews and Waters"
+  .. ..$ : chr "Mar de la Aventura Pier CJSC Logistics"
+  .. ..$ : chr "Fisher Group"
+  .. ..$ : chr "South Yacht AS Investment"
+  .. ..$ : chr "Mar de Cristalino Ges.m.b.H."
+  .. ..$ : chr "Uttar Pradesh Sea  Company Seafoam"
+  .. ..$ : chr "Morales, Young and Taylor"
+  .. ..$ : chr "Morgan LLC"
+  .. ..$ : chr "Okavango River  NV Marine life"
+  .. ..$ : chr "Kennedy-Sanchez"
+  .. ..$ : chr "Hopkins LLC"
+  .. ..$ : chr "Omo River  Ocean Incorporated Marine sanctuary"
+  .. ..$ : chr "OceanFront Foods SRL Line"
+  .. ..$ : chr "Lake Tana  N.V. Enterprises"
+  .. ..$ : chr "Reed LLC"
+  .. ..$ : chr "Sailors and Surfers ОАО Delivery"
+  .. ..$ : chr "Ob River - Co Express"
+  .. ..$ : chr "Telangana  Wakame CJSC United"
+  .. ..$ : chr "Reyes-Lee"
+  .. ..$ : chr "Cox, Williams and Jones"
+  .. ..$ : chr "Beachcombers Nautical Plc Carriers"
+  .. ..$ : chr "Tamil Nadu  Market Corp"
+  .. ..$ : chr "Adkins, Garcia and Perkins"
+  .. ..$ : chr "Norwegian Fjord  S.A. de C.V. Brothers"
+  .. ..$ : chr "Neptune's Harvest LC Transport"
+  .. ..$ : chr "Hill-Harris"
+  .. ..$ : chr "OceanicHarvest Ltd. Liability Co Family"
+  .. ..$ : chr "Stewart, Edwards and Leonard"
+  .. ..$ : chr "Victoria Falls   Limited Liability Company"
+  .. ..$ : chr "Colon, West and Powell"
+  .. ..$ : chr "Caracola del Este BV"
+  .. ..$ : chr "Coral Reef CJSC Import"
+  .. ..$ : chr "Caracola del Mar NV Family"
+  .. ..$ : chr "Meyer-Ho"
+  .. ..$ : chr "Long and Sons"
+  .. ..$ : chr "Jenkins Group"
+  .. ..$ : chr "Turkish Mussels S.A. de C.V. Transport"
+  .. ..$ : chr "Bahía de Plata Jetty"
+  .. ..$ : chr "Mason Ltd"
+  .. ..$ : chr "Poole-Moore"
+  .. ..$ : chr "The Sea Lion NV Marine biology"
+  .. ..$ : chr "Water World GmbH &amp; Co. KG"
+  .. ..$ : chr "Saharan Oasis  S.A. de C.V."
+  .. ..$ : chr "Mar de la Felicidad Rybachit"
+  .. ..$ : chr "Rollins, Mercado and Miller"
+  .. ..$ : chr "Estrella de la Costa Ltd Trawler"
+  .. ..$ : chr "Alvarez-Cabrera"
+  .. ..$ : chr "Senegal Coast  Kga Freight"
+  .. ..$ : chr "Wilson-Matthews"
+  .. ..$ : chr "Mar de la Felicidad Incorporated"
+  .. ..$ : chr "qīng yú Corp Pier"
+  .. ..$ : chr "Floyd Group"
+  .. ..$ : chr "Acevedo-Hall"
+  .. ..$ : chr "Italian Anchovy LC Delivery"
+  .. ..$ : chr "Krause Ltd"
+  .. ..$ : chr "Bihar   SRL Marine sanctuary"
+  .. ..$ : chr "Le LLC"
+  .. ..$ : chr "Assam  Market Incorporated -"
+  .. ..$ : chr "Mandalore Kga Marine sanctuary"
+  .. ..$ : chr "Mar de la Luna LLC"
+  .. ..$ : chr "Ola del Este A/S"
+  .. ..$ : chr "Ltd. Corporation Ltd. Corporation"
+  .. ..$ : chr "Davis LLC"
+  .. ..$ : chr "West Bengal  S.A. de C.V."
+  .. ..$ : chr "Reef Rascals Plc Carriers"
+  .. ..$ : chr "Knight, Torres and Hall"
+  .. ..$ : chr "Dutch Mussels Ltd. Liability Co"
+  .. ..$ : chr "Lane, Rios and Hampton"
+  .. ..$ : chr "Ocean Emporium Wakame Ltd Services"
+  .. ..$ : chr "Tamil Nadu s NV Merchants"
+  .. ..$ : chr "Mar del Paraíso Ltd. Liability Co"
+  .. ..$ : chr "Náutica del Norte Oyj"
+  .. ..$ : chr "Oceanic Oracle GmbH America"
+  .. ..$ : chr "Levine-Welch"
+  .. ..$ : chr "La gan  Ltd. Liability Co"
+  .. ..$ : chr "Playa del Mar Kga Family"
+  .. ..$ : chr "Parker, Meyers and Smith"
+  .. ..$ : chr "Lambert-Spence"
+  .. ..$ : chr "Lindsey-Dunn"
+  .. ..$ : chr "Walker-Chandler"
+  .. ..$ : chr "Vespuci Ltd. Liability Co"
+  .. ..$ : chr "Zambezi Valley  Marine biology"
+  .. ..$ : chr "Hanson Group"
+  .. ..$ : chr "Rogers, Kelly and Cobb"
+  .. ..$ : chr "Náutica del Este NV"
+  .. .. [list output truncated]
+  ..$ product_services:List of 27622
+  .. ..$ : chr "Automobiles"
+  .. ..$ : chr "Passenger cars, trucks, vans, and buses"
+  .. ..$ : chr "Holding firm whose subsidiaries are engaged in the businesses of refining and chemicals, process and pollution "| __truncated__
+  .. ..$ : chr "Car service, car parts and accessories, automotive technology, diagnostics for repair shops, antilock braking a"| __truncated__
+  .. ..$ : chr "Fully electric vehicles (EVs) and electric vehicle powertrain components"
+  .. ..$ : chr "Discount supermarket; Variety of food and non-food products"
+  .. ..$ : chr "Beef, pork, chicken, and lamb by-products; convenience food products; pet food and concentrates; and bresaola; "| __truncated__
+  .. ..$ : chr "Power and Gas segment (gas and steam turbines, generators for gas or steam power plants, compressor trains, int"| __truncated__
+  .. ..$ : chr "Light commercial vehicles, passenger cars, buses and trucks, forklifts, and related components"
+  .. ..$ : chr "Automobiles, trucks, steel products, industrial machinery, chemical products, and energy"
+  .. ..$ : chr "Diagnostic equipment and pharmaceuticals, agricultural products such as crop protection and animal health, and "| __truncated__
+  .. ..$ : chr "Internet Protocol based networking products and services"
+  .. ..$ : chr "Food and daily household needs products, general merchandise products, organic products, adult apparel, childre"| __truncated__
+  .. ..$ : chr "Grocery products"
+  .. ..$ : chr "Vessels for the transport of various goods, such as cargo with oversized dimensions and dangerous goods; and ge"| __truncated__
+  .. ..$ : chr "Computer notebook and electronic products; Personal digital assistant (PDA) products"
+  .. ..$ : chr "Steel (marketing of API (active pharmaceutical ingredient) materials, automotive flat products, and electrical "| __truncated__
+  .. ..$ : chr "Advanced electronic and electrical products, spanning information and communications equipment and systems, Int"| __truncated__
+  .. ..$ : chr "Full line of air-conditioning systems and refrigerants"
+  .. ..$ : chr "Wide range of consumer products"
+  .. ..$ : chr "Processed foods and other food products"
+  .. ..$ : chr "Animal feed, animal breeding and animal farming; meat processing; Semi-cooked meat and fully-cooked meat; food "| __truncated__
+  .. ..$ : chr "Batteries"
+  .. ..$ : chr "Glass products, electronics and display products, chemicals products, and other products"
+  .. ..$ : chr "Operates tramp (panamax) vessels for transporting various bulk cargoes, such as grain, coal, iron ore, etc. Ran"| __truncated__
+  .. ..$ : chr "Office automation equipment"
+  .. ..$ : chr "Flat steel"
+  .. ..$ : chr "Manufacture and sale of chemicals worldwide"
+  .. ..$ : chr "Produces power tools, outdoor power equipment, floor care appliances, solar powered lighting and electronic measuring tools"
+  .. ..$ : chr "Fashion clothing"
+  .. ..$ : chr "Food products"
+  .. ..$ : chr "Perfumes, cosmetics and other toilet preparations"
+  .. ..$ : chr "Produces and sells both commercial vehicles and passenger vehicles, including mini passenger cars (Chevrolet Sp"| __truncated__
+  .. ..$ : chr "Offers a wide range of olefins, including ethylene and propylene, C4 fraction, and cracked fuel; organic chemic"| __truncated__
+  .. ..$ : chr "Products via mail order houses"
+  .. ..$ : chr "Provides agriculture and turf equipment, and related service parts, including large, medium, and utility tracto"| __truncated__
+  .. ..$ : chr "Hydraulic and thermal electric power, and distributes electric power to other electric companies through its el"| __truncated__
+  .. ..$ : chr "Develops innovative products and solutions in chemical and semiconductor sectors"
+  .. ..$ : chr "Frozen whole and cut chickens, partridges, and quail; and frozen pork and beef cuts, such as loins and ribs, an"| __truncated__
+  .. ..$ : chr "Financial institutions (private banking, personal financial services, trust services, commercial and corporate "| __truncated__
+  .. ..$ : chr "Electricity"
+  .. ..$ : chr "Plastic-related products"
+  .. ..$ : chr "Domestic and international air and ocean freight forwarding services; Customs clearance, warehousing, trucking,"| __truncated__
+  .. ..$ : chr "Operates Wills Lifestyle stores, including approximately 400 outlets, and 6 exclusive boutiques; and approximat"| __truncated__
+  .. ..$ : chr "High-grade metal products and materials, electronics and IT devices, high-grade functional components and equipment"
+  .. ..$ : chr "Information Equipment, Optics, Medical and Graphic, Measuring Machine, and Photo Imaging"
+  .. ..$ : chr "Canned, frozen and other processed convenience foods, together with meats, animal feed and fish byproducts"
+  .. ..$ : chr "Unknown"
+  .. ..$ : chr "Providing executive, legislative, and other general government support"
+  .. ..$ : chr "Manufacture and marketing of communication products, electronic equipment and electronic components, as well as"| __truncated__
+  .. ..$ : chr "Steel products"
+  .. ..$ : chr "Plastic and metal zippers; plastic hardware including buckles, strap adjusters, loops, D rings, snap hooks, cor"| __truncated__
+  .. ..$ : chr "Automobile tires"
+  .. ..$ : chr "Management, selling, and buying of real estate properties"
+  .. ..$ : chr "One- to five-day freight shipping service"
+  .. ..$ : chr "Denim jeans and other apparels"
+  .. ..$ : chr "Food products"
+  .. ..$ : chr "Railway products and equipment"
+  .. ..$ : chr "Pharmaceuticals; Warehousing; Fresh and frozen sea foods"
+  .. ..$ : chr "Seal products, industrial mechanical parts, hydraulic and pneumatic equipment, nuclear power equipment, synthet"| __truncated__
+  .. ..$ : chr "Flat products (coils, strips, sheets), both carbon and pre-painted (PPGI) steel and carbon steel welded tubes"
+  .. ..$ : chr "Copper foil, battery materials, engineered metal powders, rare metals, micro circuits, zinc, copper, precious m"| __truncated__
+  .. ..$ : chr "Specialty pharmaceuticals and active pharmaceutical ingredients (APIs)"
+  .. ..$ : chr "Flat and long steel products"
+  .. ..$ : chr "Textile products, apparels, and other industrial goods; Fibers and textiles, plastics and chemicals, IT-related"| __truncated__
+  .. ..$ : chr "Consumer products"
+  .. ..$ : chr "Snapchat; Spectacles"
+  .. ..$ : chr "Machinery and complete systems for the filling and packaging industry and for the production of beverages"
+  .. ..$ : chr "Fresh and cooked frozen shrimp, frozen cephalopod, canned seafood, canned pet food, and ready to eat products, "| __truncated__
+  .. ..$ : chr "Retail sale of fashion clothing"
+  .. ..$ : chr "Manufacturing, developing and marketing of products related to construction and building maintenance"
+  .. ..$ : chr "Soy sauce, soy sauce-based seasonings, foodstuffs, alcohol-based seasonings and alcoholic beverages, beverages,"| __truncated__
+  .. ..$ : chr "Unknown"
+  .. ..$ : chr "Black copper and copper alloys"
+  .. ..$ : chr "General lines of merchandise"
+  .. ..$ : chr "Owns and operates United States-style membership shopping warehouse clubs under the trade name PriceSmart in La"| __truncated__
+  .. ..$ : chr "Glass products"
+  .. ..$ : chr "Oils, soaps, detergents, industrial greases, coffee, cosmetic products, personal hygiene and cleaning products,"| __truncated__
+  .. ..$ : chr "Copper tube and fittings; brass and copper alloy rod; bar and shapes; aluminum and brass forgings; aluminum and"| __truncated__
+  .. ..$ : chr "Banking and financial products and services; Personal banking, business banking and online banking services, as"| __truncated__
+  .. ..$ : chr "Offers chemical products for water-intensive industries; Provides bleaching and builder solutions for cleaners,"| __truncated__
+  .. ..$ : chr "Machinery and plant for the iron and steel industry"
+  .. ..$ : chr "Climate control products and systems consisting of heat exchangers, climate controls, compressors, and fluid tr"| __truncated__
+  .. ..$ : chr "Precision-engineered flow control equipment"
+  .. ..$ : chr "A full line of groceries, and most have pharmacies, video rental outlets, in-store banking, and florist shops"
+  .. ..$ : chr "Prepared feeds for farm animals; Farm supplies"
+  .. ..$ : chr "Food products"
+  .. ..$ : chr "Cleaning systems and equipment, known for its high-pressure cleaners"
+  .. ..$ : chr "Processed foods such as fermented food, starch products, and health food"
+  .. ..$ : chr "Electrical machines and drives"
+  .. ..$ : chr "Food products"
+  .. ..$ : chr "Air transportation services for passengers and cargo"
+  .. ..$ : chr "Cars, plants and equipment for railways and other rail and traffic systems as well as all related services"
+  .. ..$ : chr "Air brake components and systems and aluminum castings for original equipment manufacturers (OEMs)"
+  .. ..$ : chr "Plastic materials and synthetic resins"
+  .. ..$ : chr "Textiles; industrial materials; special chemicals; heavy industry; construction; telecommunications; general trade"
+  .. ..$ : chr "Design, production and product management services"
+  .. ..$ : chr "Cosmetics, perfumes and other related products"
+  .. ..$ : chr "Together with its subsidiaries (development, production, treatment, processing and marketing of special glasses"| __truncated__
+  .. .. [list output truncated]
+  ..$ revenue_omu     :List of 27622
+  .. ..$ : num 3.11e+08
+  .. ..$ : num 1.63e+08
+  .. ..$ : num 1.15e+08
+  .. ..$ : num 9.1e+07
+  .. ..$ : num 81466667
+  .. ..$ : num 75070435
+  .. ..$ : num 72167572
+  .. ..$ : num 72162317
+  .. ..$ : num 68832979
+  .. ..$ : num 65592906
+  .. ..$ : num 55349448
+  .. ..$ : num 51561667
+  .. ..$ : num 41542564
+  .. ..$ : num 40362667
+  .. ..$ : num 36901223
+  .. ..$ : num 3.5e+07
+  .. ..$ : num 3e+07
+  .. ..$ : num 27684153
+  .. ..$ : num 25405861
+  .. ..$ : num 24120481
+  .. ..$ : num 23739782
+  .. ..$ : num 17939781
+  .. ..$ : num 15884150
+  .. ..$ : num 15381123
+  .. ..$ : num 14667942
+  .. ..$ : num 14404529
+  .. ..$ : num 14201070
+  .. ..$ : num 13279496
+  .. ..$ : num 13272101
+  .. ..$ : num 12665898
+  .. ..$ : num 11504667
+  .. ..$ : num 11352674
+  .. ..$ : num 1.1e+07
+  .. ..$ : num 10503128
+  .. ..$ : num 9891667
+  .. ..$ : num 9304674
+  .. ..$ : num 8865950
+  .. ..$ : num 8836217
+  .. ..$ : num 8726579
+  .. ..$ : num 8686802
+  .. ..$ : num 8237704
+  .. ..$ : num 8205989
+  .. ..$ : num 8014806
+  .. ..$ : num 8007623
+  .. ..$ : num 7744643
+  .. ..$ : num 7534880
+  .. ..$ : num 7085566
+  .. ..$ : num 7e+06
+  .. ..$ : num 6932731
+  .. ..$ : num 6721269
+  .. ..$ : num 6720619
+  .. ..$ : num 6516260
+  .. ..$ : num 6508571
+  .. ..$ : num 6495455
+  .. ..$ : num 6264744
+  .. ..$ : num 6173267
+  .. ..$ : num 6161667
+  .. ..$ : num 6094773
+  .. ..$ : num 5672004
+  .. ..$ : num 5580705
+  .. ..$ : num 5215310
+  .. ..$ : num 5179062
+  .. ..$ : num 5158710
+  .. ..$ : num 4760286
+  .. ..$ : num 4662526
+  .. ..$ : num 4622176
+  .. ..$ : num 4606514
+  .. ..$ : num 4541756
+  .. ..$ : num 4532443
+  .. ..$ : num 4485103
+  .. ..$ : num 4482715
+  .. ..$ : num 4248352
+  .. ..$ : num 4206614
+  .. ..$ : num 4125934
+  .. ..$ : num 4112564
+  .. ..$ : num 4070760
+  .. ..$ : num 4057605
+  .. ..$ : num 4056871
+  .. ..$ : num 3987122
+  .. ..$ : num 3912238
+  .. ..$ : num 3819893
+  .. ..$ : num 3770086
+  .. ..$ : num 3760667
+  .. ..$ : num 3619787
+  .. ..$ : num 3591667
+  .. ..$ : num 3503018
+  .. ..$ : num 3488503
+  .. ..$ : num 3413330
+  .. ..$ : num 3227337
+  .. ..$ : num 3206035
+  .. ..$ : num 3179588
+  .. ..$ : num 3144667
+  .. ..$ : num 3104427
+  .. ..$ : num 3057687
+  .. ..$ : num 3048431
+  .. ..$ : num 3021278
+  .. ..$ : num 3011371
+  .. ..$ : num 2987952
+  .. ..$ : num 2976384
+  .. .. [list output truncated]
+  ..$ type            :List of 27622
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. ..$ : chr "Company"
+  .. .. [list output truncated]</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Checking the number of missing values in each column </span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(mc3_data<span class="sc">$</span>type))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(mc3_data<span class="sc">$</span>country))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(mc3_data<span class="sc">$</span>product_services))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(mc3_data<span class="sc">$</span>revenue_omu))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(mc3_data<span class="sc">$</span>id))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<details>
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(mc3_data<span class="sc">$</span>role))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
