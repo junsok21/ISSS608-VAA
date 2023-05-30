@@ -1,9 +1,31 @@
 ---
-title: "Take home 2"
-author: "JS K."
+title: "Take home Exercise 2"
+subtitle: "Take home2 - question 1"
+author: "Junseok Kim"
+date: May 28 2023
+date-format: medium
+execute:
+  warning: false
+  error: false
+  message: false
+format:
+  html:
+    page-layout: full
+    toc: true
+    smooth-scroll: true
+    code-fold: true
+    code-summary: "Show the code"
+    code-block-border-left: "#63B9A1"
+    code-block-bg: "#f2f5f9"
+    code-copy: hover
+    title-block-banner: true
+    fig-align: center
+    reader-mode: true
 ---
 
-#1.1 Import Libraries and Datasets
+## 1. Overview
+
+### 1.1 Import Libraries and Datasets
 
 ```{r}
 pacman::p_load(jsonlite, tidygraph, ggraph, visNetwork, lubridate, tidyverse)
@@ -29,7 +51,7 @@ catfish <- jsonlite::fromJSON("data/bundles/catfish.json")
 carp <- jsonlite::fromJSON("data/bundles/carp.json")
 ```
 
-#1.2 Review the imported data
+### 1.2 Review the imported data
 
 ```{r}
 glimpse(mc2_data)
@@ -40,7 +62,12 @@ mc2_nodes <- as_tibble(mc2_data$nodes) %>%
   select(id, shpcountry, rcvcountry)
 ```
 
-#removed columnswith a large number of missing data, namely: valueofgoods_omu, volumeteu, valueofgoodsusd
+
+
+::: callout-note
+Removed columns with a large number of missing data, namely: valueofgoods_omu, volumeteu, valueofgoodsusd.
+:::
+
 
 ```{r}
 mc2_edges <- as_tibble(mc2_data$links) %>%
@@ -50,24 +77,49 @@ mc2_edges <- as_tibble(mc2_data$links) %>%
   distinct()
 ```
 
+
+
+
+
+
+```{r}
+any(duplicated(mc2_nodes))
+```
+
+```{r}
+any(duplicated(mc2_edges))
+```
+
+```{r}
+mc2_edges_cleandupe <- mc2_edges[!duplicated(mc2_edges), ]
+```
+
+### Clean up HS codes
+
 ```{r}
 length(unique(mc2_edges$hscode))
 ```
 
-##removed hscodes that unlikely belong to fishery, based on https://connect2india.com/hs-classification.html. Also removed likely codes for processed foods.
+::: callout-note
+Removed hscodes that unlikely belong to fishery, based on https://connect2india.com/hs-classification.html. Also removed likely codes for processed foods.
+:::
 
 ```{r}
-mc2_edges_pure <- mc2_edges[grepl('^301|^302|^303|^305', mc2_edges$hscode), ]
+mc2_edges_pure <- mc2_edges_cleandupe[grepl('^301|^302|^303|^305', mc2_edges$hscode), ]
 
 length(unique(mc2_edges_pure$hscode))
 ```
 
-# 
+### Aggregate Edges
+
+Perform group by 'source', 'target' and 'Year', and aggregate the total count of exchanges
 
 ```{r}
 mc2_edges_aggregated <- mc2_edges_pure %>%
   group_by(source, target, Year) %>%
-    summarise(weights = n()) %>%
+    summarise(weights = n(),
+              sum_weightkg = sum(weightkg),
+              hscode=first(hscode)) %>%
   filter(source!=target) %>%
   filter(weights > 10) %>%
   ungroup()
@@ -75,9 +127,23 @@ mc2_edges_aggregated <- mc2_edges_pure %>%
 glimpse(mc2_edges_aggregated)
 ```
 
-#Create Network graph
+### Remove targets with relationship count less than 4
 
-## Nodes Table & Filter nodes
+```{r}
+#|eval: false
+#|echo: false
+
+relationship_count <- table(mc2_edges_aggregated$target)
+
+relationship_count_heavy <- names(relationship_count[relationship_count >= 4])
+
+mc2_edges_aggregated <- mc2_edges_aggregated[mc2_edges_aggregated$target %in% relationship_count_heavy, ]
+
+print(mc2_edges_aggregated)
+
+```
+
+### Prepare Nodes
 
 ```{r}
 id1 <- mc2_edges_aggregated %>%
@@ -90,50 +156,7 @@ mc2_nodes_extracted <- rbind(id1, id2) %>%
   distinct()
 ```
 
-### Taking a deeper look at Tuna Data
-
-#Chose the tuna dataset as the literature review suggests that Tuna is highly related to IUU
-
-```{r}
-glimpse(tuna)
-```
-
-```{r}
-tuna_nodes <- as_tibble(tuna$nodes) %>%
-  select(id, shpcountry, rcvcountry)
-```
-
-```{r}
-tuna_edges <- as_tibble(tuna$links) %>%
-  mutate(Arrivaldate = ymd(arrivaldate)) %>%
-  mutate(Year = year(Arrivaldate)) %>%
-  mutate(MonthYear = format(Arrivaldate, "%B %Y")) %>%
-  select(source, target, hscode, Arrivaldate, MonthYear, valueofgoods_omu)
-
-```
-
-```{r}
-tuna_edges_aggregated <- tuna_edges %>%
-  group_by(source, target) %>%
-    summarise(weights = n()) %>%
-  filter(source!=target) %>%
-  filter(weights > 1) %>%
-  ungroup()
-```
-
-#table graph for Tuna dataset
-
-```{r}
-tuna_graph <- tbl_graph(nodes = tuna_nodes,
-                        edges = tuna_edges_aggregated,
-                        directed = TRUE)
-
-tuna_graph %>%
-  activate(edges) %>%
-  arrange(desc(weights))
-
-tuna_graph
-```
+## Create Network graph
 
 ```{r}
 mc2_graph <- tbl_graph(nodes = mc2_nodes_extracted,
@@ -144,10 +167,6 @@ mc2_graph <- tbl_graph(nodes = mc2_nodes_extracted,
 ```{r}
 #|echo: false
 mc2_graph
-```
-
-```{r}
-
 ```
 
 ```{r}
@@ -162,10 +181,6 @@ ggraph(mc2_graph,
 write_rds(mc2_nodes_extracted, "data/mc2_nodes_extracted.rds")
 write_rds(mc2_edges_aggregated, "data/mc2_edges_aggregated.rds")
 write_rds(mc2_graph, "data/mc2_graph.rds")
-```
-
-```{r}
-mc2_graph
 ```
 
 ```{r}
@@ -200,3 +215,215 @@ visNetwork(nodes_df,
              nodesIdSelection = TRUE)
 
 ```
+
+### calculate various centrality measures
+
+```{r}
+measures_graph<- mc2_graph %>%
+  activate("nodes") %>% 
+  mutate(betweenness_centrality = centrality_betweenness(directed = TRUE)) %>% 
+  mutate(in_deg_centrality = centrality_degree(weights = weights, 
+                                               mode = "in")) %>% 
+  mutate(out_deg_centrality = centrality_degree(weights = weights, 
+                                               mode = "out")) %>%
+  mutate(pagerank_centrality = centrality_pagerank(weights = weights,
+                                                  directed = TRUE))
+```
+
+```{r}
+btw_graph<- measures_graph %>% 
+  activate("nodes") %>% 
+  as_tibble() %>% 
+  arrange(desc(betweenness_centrality)) %>% 
+  select(id,betweenness_centrality) %>% 
+  head(n=5)
+
+
+DT::datatable(btw_graph, class = "compact", colnames = c("Name of Company","Betweenness Centrality"),
+              caption = 'Table 1: Top 5 Companies by Betweenness Centrality')
+```
+
+```{r}
+in_deg_graph<- measures_graph %>% 
+  activate("nodes") %>% 
+  as_tibble() %>% 
+  arrange(desc(in_deg_centrality)) %>% 
+  select(id,in_deg_centrality) %>% 
+  head(n=5)
+
+
+DT::datatable(in_deg_graph, class = "compact", colnames = c("Name of Company","In-Degree Centrality"),
+              caption = 'Table 2: Top 5 Companies by In-Degree')
+```
+
+```{r}
+out_deg_graph<- measures_graph %>% 
+  activate("nodes") %>% 
+  as_tibble() %>% 
+  arrange(desc(out_deg_centrality)) %>% 
+  select(id,out_deg_centrality) %>% 
+  head(n=5)
+
+DT::datatable(out_deg_graph, class = "compact", colnames = c("Name of Company","Out-Degree Centrality"),
+              caption = 'Table 3: Top 5 Companies by Out-Degree')
+```
+
+### 3.2 Interactive graph for top 2 in-degree centrality compan
+
+```{r}
+n <- 2
+top_n_in_deg_list <- measures_graph %>% 
+  activate("nodes") %>% 
+  as_tibble() %>% 
+  arrange(desc(in_deg_centrality)) %>% 
+  top_n(n,wt = in_deg_centrality) %>%
+  pull(id)
+```
+
+```{r}
+mc2_edges_agg_in <- mc2_edges_aggregated %>%
+  filter(target %in% top_n_in_deg_list | source %in% top_n_in_deg_list)
+
+```
+
+```{r}
+
+mc2_nodes_in <- mc2_nodes %>%
+  filter (id %in% c(mc2_edges_agg_in$source, mc2_edges_agg_in$target))
+
+```
+
+```{r}
+mc2_edges_agg_in <- mc2_edges_agg_in %>%
+  group_by(source, target) %>%
+  mutate(total_shipped_weightkg = sum(sum_weightkg))
+
+```
+
+```{r}
+mc2_edges_agg_vis_in <- mc2_edges_agg_in %>% 
+  rename(from = source) %>% 
+  rename(to = target) %>% 
+  mutate(title = paste('Total shipment weight = ',total_shipped_weightkg, "\n HSCODE =", hscode))
+```
+
+```{r}
+mc2_nodes_vis_in <- mc2_nodes_in %>% 
+  mutate(title = paste('shpcountry =', shpcountry, ',',
+                       'rcvcountry =', rcvcountry, ',',
+                       '\n In-deg = ', measures_graph$in_deg_centrality, ',',
+                       "\n Betweenness =", measures_graph$betweenness_centrality, ',',
+                       "\n Out-deg =", measures_graph$out_deg_centrality))
+```
+
+
+
+### Filtered ego network of the top 2 companies
+
+```{r}
+
+#| fig-width: 12
+#| fig-asp: 0.555
+set.seed(1234)
+visNetwork(mc2_nodes_vis_in,
+           mc2_edges_agg_vis_in,
+           main = "Ego Network of top 2 In-Degree companies",
+           height = "600px", width = "100%") %>%
+  visIgraphLayout(layout = "layout_nicely") %>%
+  visEdges(arrows = 'to',
+           smooth = list(enables = TRUE,
+                         type= 'straightCross'),
+           shadow = FALSE,
+           dash = FALSE) %>% 
+  visOptions(highlightNearest = list(enabled = T, degree = 1, hover = T),
+             nodesIdSelection = TRUE) %>%
+  visInteraction(hideEdgesOnDrag = TRUE) %>% 
+  visLegend() %>%
+  visLayout(randomSeed = 123)
+```
+```
+
+
+
+
+
+### 3.3 Interactive graph for top 5 Out-degree centrality companies
+
+
+### Temporal analysis of Top N in-deg centrality companies. 
+
+
+
+```{r}
+
+n <- 2
+top_n_in_list <- measures_graph %>%
+  activate("nodes") %>% 
+  as_tibble() %>% 
+  arrange(desc(in_deg_centrality)) %>% 
+  top_n(n,wt = in_deg_centrality) %>%
+  pull(id)
+
+
+```
+
+
+
+```{r}
+```{r}
+mc2_edges_agg_in_top_n <- mc2_edges_aggregated[mc2_edges_aggregated$target %in% top_n_in_list, ]
+
+```
+```
+
+
+```{r}
+```{r}
+topn <- mc2_edges_agg_in_top_n %>%
+  group_by(source, Year) %>%
+  summarise(total_weight_by_year = sum(weights)) %>%
+  ungroup() 
+
+topn <- topn  %>%  group_by(source) %>%
+  mutate(maxweightyear = as.character(Year[which.max(total_weight_by_year)])) %>%
+  ungroup()
+
+```
+```
+### Heatmap
+
+```{r}
+```{r}
+#| fig-width: 13
+#| fig-height: 100
+#| fig-asp: 0.555
+plotfrom <- "2028-01-01"
+plotto <- '2035-01-01'
+
+ggplot(topn, aes(x = Year, y = fct_reorder(source, maxweightyear), fill = total_weight_by_year))+
+  geom_tile(colour="White", show.legend=TRUE) +
+  scale_fill_distiller(palette="Spectral") +
+  scale_y_discrete(name="", expand=c(0,0))+
+  labs(title="Heatmap of shipping interactions",
+       subtitle=paste0("Top receiving companies from ", 
+                       plotfrom, ' to ', plotto)) +
+  theme_classic() +
+  
+  theme(axis.line.y=element_blank(), plot.subtitle=element_text(size=rel(0.78)),
+        plot.title.position="plot",
+        axis.text.y=element_text(colour="Black",size=5), 
+        plot.title=element_text(size=rel(2.3))) +
+
+  guides(fill = guide_colorbar(title = "Total Weight", title.position = "top",
+                               direction = "horizontal", nbin = 5))
+  
+  ggsave("heatmap.png", height = 30, width = 15, dpi = 300)
+```
+
+### Finding: there are some source companies that are only active in certain years, namely, 
+These maybe involved in IUU, changing their names frequently. 
+
+```
+
+
+
