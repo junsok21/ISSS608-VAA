@@ -29,7 +29,6 @@ Through visual analytics, FishEye aims to identify companies potentially engaged
 
 In this context, this page will attempt to answer the following task under Mini-Challenge 2 of the VAST Challenge: **Identify companies that fit a pattern of illegal fishing. Use visualizations to support your conclusions and your confidence in them. Limit your response to 300 words and 4 images.**
 
-
 ### 1.1 Import Libraries and Datasets
 
 ```{r}
@@ -46,13 +45,13 @@ mc2_data <-
 ```{r}
 glimpse(mc2_data)
 ```
+
 ### 1.3 Create nodes tibble
 
 ```{r}
 mc2_nodes <- as_tibble(mc2_data$nodes) %>%
   select(id, shpcountry, rcvcountry)
 ```
-
 
 ::: callout-note
 Removed columns with large number of missing data, namely: valueofgoods_omu, volumeteu, valueofgoodsusd.
@@ -75,6 +74,7 @@ any(duplicated(mc2_nodes))
 
 any(duplicated(mc2_edges))
 ```
+
 ### 1.6 Remove duplicates
 
 ```{r}
@@ -173,6 +173,7 @@ ggraph(mc2_graph,
   geom_node_point(aes()) +
   theme_graph()
 ```
+
 ::: callout-note
 Hard to deduce much relationship here, but it looks like the majority of the nodes are interconnected at the center area. Will be working on further filtering.
 :::
@@ -207,6 +208,7 @@ visNetwork(nodes_df,
            smooth = list(enabled = TRUE, 
                          type = "curvedCW"))
 ```
+
 ::: callout-note
 Again, hard to deduce much relationship here, as the majority of the nodes are interconnected like spagetti at the center area. Will be working on further filtering.
 :::
@@ -256,7 +258,7 @@ DT::datatable(btw_graph, class = "compact", colnames = c("Name of Company","Betw
 ```
 
 ::: callout-note
-Explored Betweenness Centrality but only one company has betweeness centrality greater than 0. This can be attributed to the extensive data narrow down around HS code and weight I have done earlier. 
+Explored Betweenness Centrality but only one company has betweeness centrality greater than 0. This can be attributed to the extensive data narrow down around HS code and weight I have done earlier.
 :::
 
 ### 3.3 Top 5 Companies in terms of In-degree Centrality
@@ -298,8 +300,7 @@ DT::datatable(out_deg_graph, class = "compact", colnames = c("Name of Company","
 Identified Top 5 Out-Degree Companies that are primarily involved in exports. Could not find any company that particularly stands out.
 :::
 
-
-### 3.5 Interactive graph for Top 2 Companies in terms of  in-degree Centrality 
+### 3.5 Interactive graph for Top 2 Companies in terms of in-degree Centrality
 
 #### 3.5.1 Prepare the graph
 
@@ -335,7 +336,6 @@ mc2_nodes_vis_in <- mc2_nodes_in %>%
                        "\n Out-deg =", measures_graph$out_deg_centrality))
 ```
 
-
 #### 3.5.2 Filtered Ego Network of the top 2 In-Degree companies
 
 ```{r}
@@ -363,7 +363,6 @@ visNetwork(mc2_nodes_vis_in,
 ::: callout-note
 While the Top 2 companies have their own networks of business partners, they also have a shared network of common business partners.
 :::
-
 
 ### 3.6 Interactive graph for top 5 Out-degree centrality companies
 
@@ -402,7 +401,6 @@ mc2_nodes_vis_out <- mc2_nodes_out %>%
                        "\n Out-deg =", measures_graph$out_deg_centrality))
 ```
 
-
 ```{r}
 
 #| fig-width: 12
@@ -424,6 +422,7 @@ visNetwork(mc2_nodes_vis_out,
   visLegend() %>%
   visLayout(randomSeed = 123)
 ```
+
 ::: callout-note
 Again, these are Top 5 Out-Degree Companies that are primarily involved in exports. Could not find any company that particularly stands out. We will shift our focus back to the Top 2 In-Degree Companies.
 :::
@@ -431,7 +430,7 @@ Again, these are Top 5 Out-Degree Companies that are primarily involved in expor
 ### 3.7 Tree Map Analysis of trading relationships of the Top 2 In-Degree companies
 
 ::: callout-note
-Top 2 In-degree companies are: hǎi dǎn Corporation Wharf and Mar del Este CJSC 
+Top 2 In-degree companies are: hǎi dǎn Corporation Wharf and Mar del Este CJSC
 :::
 
 #### 3.7.1 hǎi dǎn Corporation Wharf Relationships
@@ -449,9 +448,8 @@ treemap(hai_dan_df,
         title="Companies who Trade with hǎi dǎn Corporation Wharf in terms of weightkg")
 ```
 
-
 ::: callout-note
-Mount Kenya, ReefR, and Aqua Aura SE stand out the most as top business partners of hǎi dǎn Corporation Wharf. It would be worth investigating these companies as to where they are incorporated, additional trade relationships etc. 
+Mount Kenya, ReefR, and Aqua Aura SE stand out the most as top business partners of hǎi dǎn Corporation Wharf. It would be worth investigating these companies as to where they are incorporated, additional trade relationships etc.
 :::
 
 #### 3.7.2 Mar del Este CJSC
@@ -470,38 +468,31 @@ treemap(mar_del_df,
 ```
 
 ::: callout-note
-Tiao piao AG Delivery and Belgian Harbor OAO Freight
- stand out the most as top business partners of Mar del Este CJSC. It would be worth investigating these companies as to where they are incorporated, additional trade relationships etc. 
+Tiao piao AG Delivery and Belgian Harbor OAO Freight stand out the most as top business partners of Mar del Este CJSC. It would be worth investigating these companies as to where they are incorporated, additional trade relationships etc.
 :::
-
 
 ## 4. Conclusion
 
 I was able to scan **potential** actors involved in Transshipping but some further analysis is definitely required.
 
-The two Companies we have identified with the highest in-degree scores would worth further investigations, as these could be central carriers. According to literature reviews, central carriers help fishing vessels unload both at sea and at ports. They are mostly incorporated in open-registry countries (to avoid sanctions) and are often involved in illegal, unreported, or unregulated activities. 
+The two Companies we have identified with the highest in-degree scores would worth further investigations, as these could be central carriers. According to literature reviews, central carriers help fishing vessels unload both at sea and at ports. They are mostly incorporated in open-registry countries (to avoid sanctions) and are often involved in illegal, unreported, or unregulated activities.
 
 We were also able to identify 5 major trade partners of the aforementioned two companies. These 5 companies are likely fishing vessels who unload their share to central carriers. It would also be worthwhile to look into what these companies do in more detail.
 
-
 ## 5. Reflections
 
-### 5.1 Data limitation 
+### 5.1 Data limitation
 
-Unfortunately valueofgoods data was limited for custom-declared, and with lots of Nulls. 
-As the main motivation behind illegal fishing would be money, it would be interesting to look at the valueofgoods and not just weightKg.
+Unfortunately valueofgoods data was limited for custom-declared, and with lots of Nulls. As the main motivation behind illegal fishing would be money, it would be interesting to look at the valueofgoods and not just weightKg.
 
-In addition, the VAST challenge data set did not have data on vessel locations, speed, etc, which makes it difficult for me to identify "likely" transshipment into detail. 
+In addition, the VAST challenge data set did not have data on vessel locations, speed, etc, which makes it difficult for me to identify "likely" transshipment into detail.
 
-### 5.2 Striking the balance between simplicity vs. details 
+### 5.2 Striking the balance between simplicity vs. details
 
 After filtering by HS codes and weights, I was left with only 1k nodes. If I had more time, I would have spent more time looking at the distribution of the data, and follow the Pareto rule, etc.
-
 
 ## 6. References
 
 Petrossian, G., & Barthuly, B., & Sonowski, M. (2022, March 31). Identifying Central Carriers and Detecting Key Communities Within the Global Fish Transshipment Networks
 
 Park, A. Stamato, S. (2020). Social Network Analysis of Global Transshipment: A Framework for Discovering Illegal Fishing Networks
-
-
