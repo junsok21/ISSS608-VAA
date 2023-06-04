@@ -467,5 +467,19 @@
     "title": "Hands on 5",
     "section": "7.5: Incorporating interactivity menu with visOptions()",
     "text": "7.5: Incorporating interactivity menu with visOptions()\nAdd argument nodesIdSelection = TRUE\n\n\nShow the code\nvisNetwork(GAStech_nodes,\n           GAStech_edges_aggregated) %>%\n  visIgraphLayout(layout = \"layout_with_fr\") %>%\n  visOptions(highlightNearest = TRUE,\n             nodesIdSelection = TRUE) %>%\n  visLegend() %>%\n  visLayout(randomSeed = 123)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html",
+    "href": "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html",
+    "title": "Hands On 07",
+    "section": "",
+    "text": "R Packages:\n\n\nShow the code\npacman::p_load(ggHoriPlot, ggthemes, tidyverse)\n\n\nLoading the Data:\n\n\nShow the code\naverp <- read_csv(\"data/AVERP.csv\") %>%\n  mutate(Date = dmy(Date)) %>%\n  rename(Consumer_items = 'Consumer Items')\n\n\nRows: 7452 Columns: 3\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr (2): Date, Consumer Items\ndbl (1): Values\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html#plotting-the-horizon-plot",
+    "href": "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html#plotting-the-horizon-plot",
+    "title": "Hands On 07",
+    "section": "Plotting the Horizon Plot",
+    "text": "Plotting the Horizon Plot\n\n\nShow the code\naverp %>% \n  filter(Date >= \"2018-01-01\") %>%\n  ggplot() +\n  geom_horizon(\n    aes(x = Date, y = Values), \n    origin = \"midpoint\", \n    horizonscale = 6\n  )+\n  facet_grid(Consumer_items~.) +\n  theme_few() +\n  scale_fill_hcl(palette = 'RdBu') +\n  scale_x_date(\n    expand=c(0,0), \n    date_breaks = \"3 month\", \n    date_labels = \"%b%y\"\n  ) +\n  labs(\n    title = \"Average Retail Prices of Selected Consumer Items (Jan 2018 to Dec 2022)\"\n  ) +\n  theme(\n    panel.spacing.y = unit(0, \"lines\"), \n    strip.text.y = element_text(size = 5, angle = 0, hjust = 0),\n    legend.position = \"none\",\n    axis.text.y = element_blank(),\n    axis.text.x = element_text(size = 7, angle = 90),\n    axis.title.y = element_blank(),\n    axis.title.x = element_blank(),\n    axis.ticks.y = element_blank(),\n    panel.border = element_blank(),\n    panel.background = element_rect(fill = \"#F8F3E6\", color = \"#F8F3E6\"),\n    plot.background = element_rect(fill = \"#F8F3E6\", color = \"#F8F3E6\"))\n\n\nWarning: Using the `size` aesthetic in this geom was deprecated in ggplot2 3.4.0.\nℹ Please use `linewidth` in the `default_aes` field and elsewhere instead."
   }
 ]
