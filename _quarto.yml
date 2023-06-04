@@ -25,19 +25,12 @@ website:
         href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html"
       - text: "Hands-on Exercise4"
         href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html"
-    - icon: person-square
-      text: "In-class Exercise"
-      menu: 
-          - text: "In-class Exercise1"
-            href: "In-class_Ex/In-class_Ex01/In-class_Ex01.html"
-          - text: "In-class Exercise3"
-            href: "In-class_Ex/In-class_Ex03/In-class_Ex03.html"
-          - text: "In-class Exercise4"
-            href: "In-class_Ex/In-class_Ex04/In-class_Ex04.html"
-          - text: "In-class Exercise5"
-            href: "In-class_Ex/In-class_Ex05/In-class_Ex05.html"
-          - text: "In-class Exercise6"
-            href: "In-class_Ex/In-class_Ex06/In-class_Ex06.html"
+      - text: "Hands-on Exercise5"
+        href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html"
+      - text: "Hands-on Exercise6"
+        href: "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html"
+      - text: "Hands-on Exercise7"
+        href: "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html"
     - icon: graph-up
       text: "Take-home Exercise"
       menu:
@@ -49,7 +42,19 @@ website:
         href: "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html"
       - text: "Take-home Exercise4"
         href: "Take-home_Ex/Take-home_Ex04/Take-home_Ex04.html"
- 
+    - icon: person-square
+      text: "In-class Exercise"
+      menu: 
+      - text: "In-class Exercise1"
+        href: "In-class_Ex/In-class_Ex01/In-class_Ex01.html"
+      - text: "In-class Exercise3"
+        href: "In-class_Ex/In-class_Ex03/In-class_Ex03.html"
+      - text: "In-class Exercise4"
+        href: "In-class_Ex/In-class_Ex04/In-class_Ex04.html"
+      - text: "In-class Exercise5"
+        href: "In-class_Ex/In-class_Ex05/In-class_Ex05.html"
+      - text: "In-class Exercise6"
+        href: "In-class_Ex/In-class_Ex06/In-class_Ex06.html"
 format:
   html:
     code-fold: true
