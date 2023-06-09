@@ -4,7 +4,9 @@ author: "JS K."
 ---
 
 ```{r}
-pacman::p_load(jsonlite, tidygraph, ggraph, visNetwork, lubridate, tidyverse)
+pacman::p_load(jsonlite, tidygraph, ggraph, 
+               visNetwork, graphlayouts, ggforce, 
+               skimr, tidytext, tidyverse, ggplot2)
 ```
 
 ```{r}
@@ -12,17 +14,74 @@ mc3_data <- fromJSON("data/MC3.json")
 ```
 
 ```{r}
-glimpse(mc3_data)
+mc3_edges <- as_tibble(mc3_data$links) %>% 
+  distinct() %>%
+  mutate(source = as.character(source),
+         target = as.character(target),
+         type = as.character(type)) %>%
+  group_by(source, target, type) %>%
+    summarise(weights = n()) %>%
+  filter(source!=target) %>%
+  ungroup()
 ```
 
 ```{r}
-# Checking the number of missing values in each column 
-sum(is.na(mc3_data$type))
-sum(is.na(mc3_data$country))
-sum(is.na(mc3_data$product_services))
-sum(is.na(mc3_data$revenue_omu))
-sum(is.na(mc3_data$id))
-sum(is.na(mc3_data$role))
+mc3_nodes <- as_tibble(mc3_data$nodes) %>%
+  mutate(country = as.character(country),
+         id = as.character(id),
+         product_services = as.character(product_services),
+         revenue_omu = as.numeric(as.character(revenue_omu)),
+         type = as.character(type)) %>%
+  select(id, country, type, revenue_omu, product_services)
 ```
 
+```{r}
+skim(mc3_edges)
+```
+
+```{r}
+DT::datatable(mc3_edges)
+```
+
+```{r}
+ggplot(data = mc3_edges,
+       aes(x = type)) +
+  geom_bar()
+```
+
+```{r}
+id1 <- mc3_edges %>%
+  select(source) %>%
+  rename(id = source)
+id2 <- mc3_edges %>%
+  select(target) %>%
+  rename(id = target)
+mc3_nodes1 <- rbind(id1, id2) %>%
+  distinct() %>%
+  left_join(mc3_nodes,
+            unmatched = "drop")
+```
+
+```{r}
+mc3_graph <- tbl_graph(nodes = mc3_nodes1,
+                       edges = mc3_edges,
+                       directed = FALSE) %>%
+  mutate(betweenness_centrality = centrality_betweenness(),
+         closeness_centrality = centrality_closeness())
+```
+
+
+
+```{r}
+mc3_graph %>%
+  filter(betweenness_centrality >= 100000) %>%
+ggraph(layout = "fr") +
+  geom_edge_link(aes(alpha=0.5)) +
+  geom_node_point(aes(
+    size = betweenness_centrality,
+    colors = "lightblue",
+    alpha = 0.5)) +
+  scale_size_continuous(range=c(1,10))+
+  theme_graph()
+```
 
