@@ -6,7 +6,7 @@ author: "JS K."
 ```{r}
 pacman::p_load(jsonlite, tidygraph, ggraph, 
                visNetwork, graphlayouts, ggforce, 
-               skimr, tidytext, tidyverse, ggplot2)
+               skimr, tidytext, tidyverse, ggplot2, skimr, topicmodels, tm, wordcloud2)
 ```
 
 ```{r}
@@ -25,6 +25,18 @@ mc3_edges <- as_tibble(mc3_data$links) %>%
   ungroup()
 ```
 
+###Check missing values
+
+```{r}
+colSums(is.na(mc3_edges))
+```
+
+### Check dupes
+
+```{r}
+mc3_edges[duplicated(mc3_edges),]
+```
+
 ```{r}
 mc3_nodes <- as_tibble(mc3_data$nodes) %>%
   mutate(country = as.character(country),
@@ -36,20 +48,75 @@ mc3_nodes <- as_tibble(mc3_data$nodes) %>%
 ```
 
 ```{r}
+mc3_nodes
+```
+
+### CHeck missing value
+
+```{r}
+colSums(is.na(mc3_nodes))
+```
+
+21515 missing from revenue_omu column
+
+### Check Dupes
+
+```{r}
+mc3_nodes[duplicated(mc3_nodes),]
+```
+
+### There are 2595 dupe entries
+
+### remove dupliated rows.
+
+```{r}
+mc3_nodes_unique <- distinct(mc3_nodes)
+
+mc3_nodes_unique
+```
+
+```{r}
+
+top_products <- mc3_nodes_unique %>%
+  count(product_services, sort = TRUE) %>%
+  top_n(10)
+
+# Rename the columns
+top_products <- top_products %>%
+  rename(Products = product_services, Occurrences = n)
+
+# Print the table
+print(top_products)
+```
+```
+
+
+
+
+
+```{r}
 skim(mc3_edges)
 ```
 
+
+```{r}
 ```{r}
 DT::datatable(mc3_edges)
 ```
 
+
 ```{r}
+
 ggplot(data = mc3_edges,
        aes(x = type)) +
   geom_bar()
 ```
 
+
+
+
 ```{r}
+
 id1 <- mc3_edges %>%
   select(source) %>%
   rename(id = source)
@@ -62,7 +129,11 @@ mc3_nodes1 <- rbind(id1, id2) %>%
             unmatched = "drop")
 ```
 
+
+
+
 ```{r}
+
 mc3_graph <- tbl_graph(nodes = mc3_nodes1,
                        edges = mc3_edges,
                        directed = FALSE) %>%
@@ -72,7 +143,11 @@ mc3_graph <- tbl_graph(nodes = mc3_nodes1,
 
 
 
+
+
+
 ```{r}
+
 mc3_graph %>%
   filter(betweenness_centrality >= 100000) %>%
 ggraph(layout = "fr") +
@@ -84,4 +159,220 @@ ggraph(layout = "fr") +
   scale_size_continuous(range=c(1,10))+
   theme_graph()
 ```
+
+```{r}
+
+skim(mc3_nodes1)
+```
+
+
+```{r}
+
+DT::datatable(mc3_nodes1)
+```
+
+```{r}
+
+ggplot(data = mc3_nodes1,
+       aes(x = type)) +
+  geom_bar()
+```
+
+##Text Sensing with tidytext
+
+```{r}
+
+#mc3_nodes1 %>% 
+ #   mutate(n_fish = str_count(product_services, "fish") 
+```
+
+
+
+## Record those "Unknwon" or"Charactor(0)" to "NA"
+
+```{r}
+
+mc3_nodes1$product_services[mc3_nodes1$product_services == "Unknown"] <- NA
+mc3_nodes1$product_services[mc3_nodes1$product_services == "character(0)"] <- NA
+```
+
+### 
+
+```{r}
+
+mc3_nodes_filtered <- mc3_nodes1 %>% 
+  mutate(n_fish = str_count(product_services, "fish")) %>%
+  arrange(desc(n_fish))
+```
+
+```{r}
+
+mc3_nodes_filtered
+```
+
+```{r}
+
+ggplot(data = mc3_nodes_filtered, aes(x = type, y = n_fish)) +
+geom_bar(stat = "identity")
+```
+
+## Tokenisation
+
+
+```{r}
+
+token_nodes <- mc3_nodes1 %>%
+  unnest_tokens(word, 
+                product_services,
+                to_lower = TRUE,
+    # Exclude punctuation from tokenisation result
+                strip_punct = TRUE)
+```
+
+### Visualize the words extracted.
+
+```{r}
+token_nodes %>%
+  count(word, sort = TRUE) %>%
+  top_n(15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(x = word, y = n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+      labs(x = "Count",
+      y = "Unique words",
+      title = "Count of unique words found in product_services field")
+```
+
+
+```{r}
+
+stopwords_removed <- token_nodes %>% 
+  anti_join(stop_words)
+```
+
+```{r}
+stopwords_removed %>%
+  count(word, sort = TRUE) %>%
+  top_n(15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(x = word, y = n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+      labs(x = "Count",
+      y = "Unique words",
+      title = "Count of unique words found in product_services field")
+```
+
+### remove the rows with stop words + "NA"
+
+
+```{r}
+stopwords_removed <- token_nodes %>% 
+  anti_join(stop_words) %>%
+  filter(!is.na(word)) 
+```
+
+
+```{r}
+stopwords_removed %>%
+  count(word, sort = TRUE) %>%
+  top_n(15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(x = word, y = n)) +
+  geom_col() +
+  xlab(NULL) +
+  geom_text(aes(label = n), vjust = 0.5, hjust = -0.1, size = 2, color = "black")+
+  coord_flip() +
+      labs(x = "Count",
+      y = "Unique words",
+      title = "Count of Top 15 unique words found in product_services field")+
+  theme_minimal() 
+
+```
+
+```{r}
+length(unique(stopwords_removed$word))
+```
+
+```{r}
+skim(mc3_nodes)
+```
+
+```{r}
+stopwords_removed_unique <- stopwords_removed %>% 
+  filter(!is.na(word))
+```
+
+
+```{r}
+length(unique(stopwords_removed_unique$word))
+```
+
+```{r}
+stopwords_removed_unique %>%
+  count(word, sort = TRUE) %>%
+  top_n(15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(x = word, y = n)) +
+  geom_col() +
+  geom_text(aes(label = n), vjust = 0.5, hjust = -0.1, size = 2, color = "black")+
+  xlab(NULL) +
+  coord_flip() +
+      labs(x = "Count",
+      y = "Unique words",
+      title = "Count of Top 15 unique words found in product_services field")+
+  theme_minimal() 
+
+```
+
+
+
+
+```{r}
+words_fishery <- c("fish", "seafood", "frozen", "food", "fresh", "salmon", "shrimp", "shellfish", "sea", "squid", "water", "seafoods", "foods", "marine", "shipment", "shipping", "pier", "carp", "cod", "herring", "lichen", "mackerel", "pollock", "shark", "tuna", "ocean", "oyster", "clam", "lobster", "crab", "crustaceans", "crustacean", "bass")
+
+mc3_nodes_fishery <- mc3_nodes_unique %>%
+  filter(str_detect(product_services, paste(words_fishery, collapse = "|", sep = "")) | !is.na(product_services))
+
+print(mc3_nodes_fishery)
+```
+
+
+## Match ID from Nodes to Source in Edge
+
+
+```{r}
+targets <- mc3_edges %>%
+  filter(source %in% mc3_nodes_fishery$id) %>%
+  select(target)
+```
+
+
+## Filter mc_edges with  the extracted targets
+
+```{r}
+mc3_edges_new <- mc3_edges %>%
+  filter(target %in% targets$target)
+```
+
+## Targets that are not selected from mc3_edges
+
+```{r}
+Non_targets <- mc3_edges %>%
+  filter(!target %in% targets$target) %>%
+  distinct(target, .keep_all = TRUE)
+```
+
+  
+## Remove non_targets from Node_fishery
+
+```{r}
+mc3_nodes_fishery_new <- mc3_nodes_fishery %>%
+  filter(!mc3_nodes_fishery$id %in% Non_targets$source)
+```
+
+### result: none of the non-targets are in Node_fishery
 
