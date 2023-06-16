@@ -614,5 +614,131 @@
     "title": "Visual Analytics",
     "section": "",
     "text": "<!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’>     dataset\n\n\n        0 0     false"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html",
+    "title": "Hands on 09",
+    "section": "",
+    "text": "By the end of this hands-on exercise, we will be able to:"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#the-data-set",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#the-data-set",
+    "title": "Hands on 09",
+    "section": "The data set",
+    "text": "The data set\nFor the purpose of this study, a personal database in Microsoft Access mdb format called Coffee Chain will be used."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#importing-database-into-r",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#importing-database-into-r",
+    "title": "Hands on 09",
+    "section": "Importing database into R",
+    "text": "Importing database into R\nIn the code chunk below, odbcConnectAccess() of RODBC package is used used to import a database query table into R.\nNote: Before running the code chunk, you need to change the R system to 32bit version. This is because the odbcConnectAccess() is based on 32bit and not 64bit\n\n\nShow the code\nlibrary(RODBC)\ncon <- odbcConnectAccess2007('data/Coffee Chain.mdb')\ncoffeechain <- sqlFetch(con, 'CoffeeChain Query')\nwrite_rds(coffeechain, \"data/CoffeeChain.rds\")\nodbcClose(con)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#data-preparation",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#data-preparation",
+    "title": "Hands on 09",
+    "section": "Data Preparation",
+    "text": "Data Preparation\nThe code chunk below is used to import CoffeeChain.rds into R.\n\n\nShow the code\ncoffeechain <- read_rds(\"data/CoffeeChain.rds\")\n\n\nNote: This step is optional if coffeechain is already available in R.\nThe code chunk below is used to aggregate Sales and Budgeted Sales at the Product level.\n\n\nShow the code\nproduct <- coffeechain %>%\n  group_by(`Product`) %>%\n  summarise(`target` = sum(`Budget Sales`),\n            `current` = sum(`Sales`)) %>%\n  ungroup()"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#bullet-chart-in-ggplot2",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#bullet-chart-in-ggplot2",
+    "title": "Hands on 09",
+    "section": "Bullet chart in ggplot2",
+    "text": "Bullet chart in ggplot2\nThe code chunk below is used to plot the bullet charts using ggplot2 functions.\n\n\nShow the code\nggplot(product, aes(Product, current)) + \n  geom_col(aes(Product, max(target) * 1.01),\n           fill=\"grey85\", width=0.85) +\n  geom_col(aes(Product, target * 0.75),\n           fill=\"grey60\", width=0.85) +\n  geom_col(aes(Product, target * 0.5),\n           fill=\"grey50\", width=0.85) +\n  geom_col(aes(Product, current), \n           width=0.35,\n           fill = \"black\") + \n  geom_errorbar(aes(y = target,\n                    x = Product, \n                    ymin = target,\n                    ymax= target), \n                width = .4,\n                colour = \"red\",\n                size = 1) +\n  coord_flip()"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#data-preparation-1",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#data-preparation-1",
+    "title": "Hands on 09",
+    "section": "Data Preparation",
+    "text": "Data Preparation\n\n\nShow the code\nsales_report <- coffeechain %>%\n  filter(Date >= \"2013-01-01\") %>%\n  mutate(Month = month(Date)) %>%\n  group_by(Month, Product) %>%\n  summarise(Sales = sum(Sales)) %>%\n  ungroup() %>%\n  select(Month, Product, Sales)\n\n\nThe code chunk below is used to compute the minimum, maximum and end othe the month sales.\n\n\nShow the code\nmins <- group_by(sales_report, Product) %>% \n  slice(which.min(Sales))\nmaxs <- group_by(sales_report, Product) %>% \n  slice(which.max(Sales))\nends <- group_by(sales_report, Product) %>% \n  filter(Month == max(Month))\n\n\nThe code chunk below is used to compute the 25 and 75 quantiles.\n\n\nShow the code\nquarts <- sales_report %>%\n  group_by(Product) %>%\n  summarise(quart1 = quantile(Sales, \n                              0.25),\n            quart2 = quantile(Sales, \n                              0.75)) %>%\n  right_join(sales_report)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#sparklines-in-ggplot2",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#sparklines-in-ggplot2",
+    "title": "Hands on 09",
+    "section": "sparklines in ggplot2",
+    "text": "sparklines in ggplot2\n\n\nShow the code\nggplot(sales_report, aes(x=Month, y=Sales)) + \n  facet_grid(Product ~ ., scales = \"free_y\") + \n  geom_ribbon(data = quarts, aes(ymin = quart1, max = quart2), \n              fill = 'grey90') +\n  geom_line(size=0.3) +\n  geom_point(data = mins, col = 'red') +\n  geom_point(data = maxs, col = 'blue') +\n  geom_text(data = mins, aes(label = Sales), vjust = -1) +\n  geom_text(data = maxs, aes(label = Sales), vjust = 2.5) +\n  geom_text(data = ends, aes(label = Sales), hjust = 0, nudge_x = 0.5) +\n  geom_text(data = ends, aes(label = Product), hjust = 0, nudge_x = 1.0) +\n  expand_limits(x = max(sales_report$Month) + \n                  (0.25 * (max(sales_report$Month) - min(sales_report$Month)))) +\n  scale_x_continuous(breaks = seq(1, 12, 1)) +\n  scale_y_continuous(expand = c(0.1, 0)) +\n  theme_tufte(base_size = 3, base_family = \"Helvetica\") +\n  theme(axis.title=element_blank(), axis.text.y = element_blank(), \n        axis.ticks = element_blank(), strip.text = element_blank())"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#plotting-coffechain-sales-report",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#plotting-coffechain-sales-report",
+    "title": "Hands on 09",
+    "section": "Plotting Coffechain Sales report",
+    "text": "Plotting Coffechain Sales report\n\n\nShow the code\nreport %>%\n  group_by(Product) %>%\n  summarize('Monthly Sales' = list(Sales), \n            .groups = \"drop\") %>%\n   gt() %>%\n   gt_plt_sparkline('Monthly Sales',\n                    same_limit = FALSE)\n\n\n\n\n\n\n  \n    \n    \n      Product\n      Monthly Sales\n    \n  \n  \n    Amaretto\n          1.2K\n    Caffe Latte\n          1.5K\n    Caffe Mocha\n          3.7K\n    Chamomile\n          3.3K\n    Colombian\n          5.5K\n    Darjeeling\n          3.0K\n    Decaf Espresso\n          3.2K\n    Decaf Irish Cream\n          2.7K\n    Earl Grey\n          3.0K\n    Green Tea\n          1.5K\n    Lemon\n          4.4K\n    Mint\n          1.5K\n    Regular Espresso\n          1.1K"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#adding-statistics",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#adding-statistics",
+    "title": "Hands on 09",
+    "section": "Adding statistics",
+    "text": "Adding statistics\nFirst, let’s calculate summary statistics by using the code chunk below.\n\n\nShow the code\nreport %>% \n  group_by(Product) %>% \n  summarise(\"Min\" = min(Sales, na.rm = T),\n            \"Max\" = max(Sales, na.rm = T),\n            \"Average\" = mean(Sales, na.rm = T)\n            ) %>%\n  gt() %>%\n  fmt_number(columns = 4,\n    decimals = 2)\n\n\n\n\n\n\n  \n    \n    \n      Product\n      Min\n      Max\n      Average\n    \n  \n  \n    Amaretto\n1016\n1210\n1,119.00\n    Caffe Latte\n1398\n1653\n1,528.33\n    Caffe Mocha\n3322\n3828\n3,613.92\n    Chamomile\n2967\n3395\n3,217.42\n    Colombian\n5132\n5961\n5,457.25\n    Darjeeling\n2926\n3281\n3,112.67\n    Decaf Espresso\n3181\n3493\n3,326.83\n    Decaf Irish Cream\n2463\n2901\n2,648.25\n    Earl Grey\n2730\n3005\n2,841.83\n    Green Tea\n1339\n1476\n1,398.75\n    Lemon\n3851\n4418\n4,080.83\n    Mint\n1388\n1669\n1,519.17\n    Regular Espresso\n890\n1218\n1,023.42"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#combining-the-data.frame",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#combining-the-data.frame",
+    "title": "Hands on 09",
+    "section": "Combining the data.frame",
+    "text": "Combining the data.frame\nNext, use the code chunk below to add the statistics into the table.\n\n\nShow the code\nspark <- report %>%\n  group_by(Product) %>%\n  summarize('Monthly Sales' = list(Sales), \n            .groups = \"drop\")\n\n\n\n\nShow the code\nsales <- report %>% \n  group_by(Product) %>% \n  summarise(\"Min\" = min(Sales, na.rm = T),\n            \"Max\" = max(Sales, na.rm = T),\n            \"Average\" = mean(Sales, na.rm = T)\n            )\n\n\n\n\nShow the code\nsales_data = left_join(sales, spark)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#plotting-the-updated-data.table",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#plotting-the-updated-data.table",
+    "title": "Hands on 09",
+    "section": "Plotting the updated data.table",
+    "text": "Plotting the updated data.table\n\n\nShow the code\nsales_data %>%\n  gt() %>%\n  gt_plt_sparkline('Monthly Sales',\n                   same_limit = FALSE)\n\n\n\n\n\n\n  \n    \n    \n      Product\n      Min\n      Max\n      Average\n      Monthly Sales\n    \n  \n  \n    Amaretto\n1016\n1210\n1119.000\n          1.2K\n    Caffe Latte\n1398\n1653\n1528.333\n          1.5K\n    Caffe Mocha\n3322\n3828\n3613.917\n          3.7K\n    Chamomile\n2967\n3395\n3217.417\n          3.3K\n    Colombian\n5132\n5961\n5457.250\n          5.5K\n    Darjeeling\n2926\n3281\n3112.667\n          3.0K\n    Decaf Espresso\n3181\n3493\n3326.833\n          3.2K\n    Decaf Irish Cream\n2463\n2901\n2648.250\n          2.7K\n    Earl Grey\n2730\n3005\n2841.833\n          3.0K\n    Green Tea\n1339\n1476\n1398.750\n          1.5K\n    Lemon\n3851\n4418\n4080.833\n          4.4K\n    Mint\n1388\n1669\n1519.167\n          1.5K\n    Regular Espresso\n890\n1218\n1023.417\n          1.1K"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#combining-bullet-chart-and-sparklines",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#combining-bullet-chart-and-sparklines",
+    "title": "Hands on 09",
+    "section": "Combining bullet chart and sparklines",
+    "text": "Combining bullet chart and sparklines\nSimilarly, we can combining the bullet chart and sparklines using the steps below.\n\n\nShow the code\nbullet <- coffeechain %>%\n  filter(Date >= \"2013-01-01\") %>%\n  group_by(`Product`) %>%\n  summarise(`Target` = sum(`Budget Sales`),\n            `Actual` = sum(`Sales`)) %>%\n  ungroup() \n\n\n\n\nShow the code\nsales_data = sales_data %>%\n  left_join(bullet)\n\n\n\n\nShow the code\nsales_data %>%\n  gt() %>%\n  gt_plt_sparkline('Monthly Sales') %>%\n  gt_plt_bullet(column = Actual, \n                target = Target, \n                width = 28,\n                palette = c(\"lightblue\", \n                          \"black\")) %>%\n  gt_theme_538()\n\n\n\n\n\n\n  \n    \n    \n      Product\n      Min\n      Max\n      Average\n      Monthly Sales\n      Actual\n    \n  \n  \n    Amaretto\n1016\n1210\n1119.000\n          1.2K\n          \n    Caffe Latte\n1398\n1653\n1528.333\n          1.5K\n          \n    Caffe Mocha\n3322\n3828\n3613.917\n          3.7K\n          \n    Chamomile\n2967\n3395\n3217.417\n          3.3K\n          \n    Colombian\n5132\n5961\n5457.250\n          5.5K\n          \n    Darjeeling\n2926\n3281\n3112.667\n          3.0K\n          \n    Decaf Espresso\n3181\n3493\n3326.833\n          3.2K\n          \n    Decaf Irish Cream\n2463\n2901\n2648.250\n          2.7K\n          \n    Earl Grey\n2730\n3005\n2841.833\n          3.0K\n          \n    Green Tea\n1339\n1476\n1398.750\n          1.5K\n          \n    Lemon\n3851\n4418\n4080.833\n          4.4K\n          \n    Mint\n1388\n1669\n1519.167\n          1.5K\n          \n    Regular Espresso\n890\n1218\n1023.417\n          1.1K"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#plotting-interactive-sparklines",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#plotting-interactive-sparklines",
+    "title": "Hands on 09",
+    "section": "Plotting interactive sparklines",
+    "text": "Plotting interactive sparklines\nSimilar to gtExtras, to plot an interactive sparklines by using reactablefmtr package we need to prepare the list field by using the code chunk below.\n\n\nShow the code\nreport <- report %>%\n  group_by(Product) %>%\n  summarize(`Monthly Sales` = list(Sales))\n\n\nNext, react_sparkline will be to plot the sparklines as shown below.\n\n\nShow the code\nreactable(\n  report,\n  columns = list(\n    Product = colDef(maxWidth = 200),\n    `Monthly Sales` = colDef(\n      cell = react_sparkline(report)\n    )\n  )\n)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#changing-the-pagesize",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#changing-the-pagesize",
+    "title": "Hands on 09",
+    "section": "Changing the pagesize",
+    "text": "Changing the pagesize\nBy default the pagesize is 10. In the code chunk below, arguments defaultPageSize is used to change the default setting.\n\n\nShow the code\nreactable(\n  report,\n  defaultPageSize = 13,\n  columns = list(\n    Product = colDef(maxWidth = 200),\n    `Monthly Sales` = colDef(\n      cell = react_sparkline(report)\n    )\n  )\n)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#adding-points-and-labels",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#adding-points-and-labels",
+    "title": "Hands on 09",
+    "section": "Adding points and labels",
+    "text": "Adding points and labels\nIn the code chunk below, highlight_points argument is used to show the minimum and maximum values points and label argument is used to label first and last values.\n\n\nShow the code\nreactable(\n  report,\n  defaultPageSize = 13,\n  columns = list(\n    Product = colDef(maxWidth = 200),\n    `Monthly Sales` = colDef(\n      cell = react_sparkline(\n        report,\n        highlight_points = highlight_points(\n          min = \"red\", max = \"blue\"),\n        labels = c(\"first\", \"last\")\n        )\n    )\n  )\n)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#adding-reference-line",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#adding-reference-line",
+    "title": "Hands on 09",
+    "section": "Adding reference line",
+    "text": "Adding reference line\nIn the code chunk below, statline argument is used to show the mean line.\n\n\nShow the code\nreactable(\n  report,\n  defaultPageSize = 13,\n  columns = list(\n    Product = colDef(maxWidth = 200),\n    `Monthly Sales` = colDef(\n      cell = react_sparkline(\n        report,\n        highlight_points = highlight_points(\n          min = \"red\", max = \"blue\"),\n        statline = \"mean\"\n        )\n    )\n  )\n)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#adding-bandline",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#adding-bandline",
+    "title": "Hands on 09",
+    "section": "Adding bandline",
+    "text": "Adding bandline\nInstead of adding reference line, bandline can be added by using the bandline argument.\n\n\nShow the code\nreactable(\n  report,\n  defaultPageSize = 13,\n  columns = list(\n    Product = colDef(maxWidth = 200),\n    `Monthly Sales` = colDef(\n      cell = react_sparkline(\n        report,\n        highlight_points = highlight_points(\n          min = \"red\", max = \"blue\"),\n        line_width = 1,\n        bandline = \"innerquartiles\",\n        bandline_color = \"green\"\n        )\n    )\n  )\n)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#changing-from-sparkline-to-sparkbar",
+    "href": "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html#changing-from-sparkline-to-sparkbar",
+    "title": "Hands on 09",
+    "section": "Changing from sparkline to sparkbar",
+    "text": "Changing from sparkline to sparkbar\nInstead of displaying the values as sparklines, we can display them as sparkbars as shown below.\n\n\nShow the code\nreactable(\n  report,\n  defaultPageSize = 13,\n  columns = list(\n    Product = colDef(maxWidth = 200),\n    `Monthly Sales` = colDef(\n      cell = react_sparkbar(\n        report,\n        highlight_bars = highlight_bars(\n          min = \"red\", max = \"blue\"),\n        bandline = \"innerquartiles\",\n        statline = \"mean\")\n    )\n  )\n)"
   }
 ]
