@@ -33,8 +33,6 @@ website:
         href: "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html"
       - text: "Hands-on Exercise8"
         href: "Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html"
-      - text: "Hands-on Exercise9"
-        href: "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html"
     - icon: graph-up
       text: "Take-home Exercise"
       menu:

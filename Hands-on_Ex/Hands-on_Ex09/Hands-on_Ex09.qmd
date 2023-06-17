@@ -446,6 +446,3 @@ reactable(
   )
 )
 ```
-=======
-```
->>>>>>> 16ab6f3d564bd5d8bd87ecaceb7ca27c927c852c
