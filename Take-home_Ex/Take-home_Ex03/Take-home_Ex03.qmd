@@ -1,12 +1,32 @@
 ---
-title: "take home3"
-author: "JS K."
+title: "Take home Exercise 3"
+subtitle: "Take home 3 - question 1"
+author: "Junseok Kim"
+date: June 17 2023
+date-format: medium
+execute:
+  warning: false
+  error: false
+  message: false
+format:
+  html:
+    page-layout: full
+    toc: true
+    smooth-scroll: true
+    code-fold: true
+    code-summary: "Show the code"
+    code-block-border-left: "#63B9A1"
+    code-block-bg: "#f2f5f9"
+    code-copy: hover
+    title-block-banner: true
+    fig-align: center
+    reader-mode: true
 ---
 
 ```{r}
 pacman::p_load(jsonlite, tidygraph, ggraph, 
                visNetwork, graphlayouts, ggforce, 
-               skimr, tidytext, tidyverse, ggplot2, skimr, topicmodels, tm, wordcloud2)
+               skimr, tidytext, tidyverse, ggplot2, skimr, tm)
 ```
 
 ```{r}
@@ -153,11 +173,12 @@ mc3_graph %>%
 ggraph(layout = "fr") +
   geom_edge_link(aes(alpha=0.5)) +
   geom_node_point(aes(
-    size = betweenness_centrality,
+    linewidth = betweenness_centrality,
     colors = "lightblue",
     alpha = 0.5)) +
-  scale_size_continuous(range=c(1,10))+
-  theme_graph()
+  scale_linewidth_continuous(range=c(1,10))+
+  theme_graph() +
+  theme(text = element_text(family = "sans"))
 ```
 
 ```{r}
@@ -335,7 +356,7 @@ stopwords_removed_unique %>%
 words_fishery <- c("fish", "seafood", "frozen", "food", "fresh", "salmon", "shrimp", "shellfish", "sea", "squid", "water", "seafoods", "foods", "marine", "shipment", "shipping", "pier", "carp", "cod", "herring", "lichen", "mackerel", "pollock", "shark", "tuna", "ocean", "oyster", "clam", "lobster", "crab", "crustaceans", "crustacean", "bass")
 
 mc3_nodes_fishery <- mc3_nodes_unique %>%
-  filter(str_detect(product_services, paste(words_fishery, collapse = "|", sep = "")) | !is.na(product_services))
+  filter(str_detect(product_services, paste(words_fishery, collapse = "|", sep = "")) | is.na(product_services))
 
 print(mc3_nodes_fishery)
 ```
@@ -375,4 +396,153 @@ mc3_nodes_fishery_new <- mc3_nodes_fishery %>%
 ```
 
 ### result: none of the non-targets are in Node_fishery
+
+
+## Find company owners () linked to multiple companies, that's anomalies. 
+
+### export csv files 
+
+```{r}
+write.csv(mc3_edges_new, file='C:/Users/junso/Downloads/mc3_edges_new.csv')
+
+```
+
+
+```{r}
+mc3_edges_new %>%
+  group_by(target) %>%
+  filter(n_distinct(source) > 1) %>%
+  select(target) 
+
+mc3_edges_new %>%
+  group_by(target) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  select(target, count)
+```
+
+```{r}
+
+# maximum length of source is whopping 213, meaning that lot of c(",) inputs.
+skim(mc3_edges_new)
+```
+
+
+
+```{r}
+mc3_edges_new_filtered <- mc3_edges_new %>%
+  filter(startsWith(source, "c("))
+
+#step 2
+
+mc3_edges_new_split <- mc3_edges_new_filtered %>%
+  separate_rows(source, sep = ", ") %>%
+  mutate(source = gsub('^c\\(|"|\\)$', '', source))
+
+#remove rows with grouped
+
+mc3_edges_new2 <- mc3_edges_new %>%
+  anti_join(mc3_edges_new_filtered)
+        
+#Add rows in step #2
+
+mc3_edges_new2 <- mc3_edges_new2 %>%
+  bind_rows(mc3_edges_new, mc3_edges_new_split)
+
+#group
+
+mc3_edges_new_groupby <- mc3_edges_new2 %>%
+  group_by(source, target, type) %>%
+  summarize(weight = n()) %>%
+  filter(weight >1) %>%
+  ungroup()
+```
+```{r}
+#The maximum length of source looks more reasonable now at 57, suggesting all the multiple values have been dropped. 
+skim(mc3_edges_new_groupby)
+```
+
+```{r}
+class(mc3_edges_new_groupby)
+```
+
+
+```{r}
+#link the latest edges to the nodes
+
+source_missing <-setdiff(mc3_edges_new_groupby$source, mc3_nodes_fishery_new$id)
+
+source_missing_df <- tibble(
+  id = source_missing,
+  country = rep(NA_character_, length(source_missing)),
+  type = rep("Company", length(source_missing)),
+  revenue = rep(NA_real_, length(source_missing)),
+  product_services = rep(NA_character_, length(source_missing))
+)
+
+target_missing <- setdiff(mc3_edges_new_groupby$target, mc3_nodes_fishery_new$id)
+
+target_missing_df <- tibble(
+  id = target_missing,
+  country = rep(NA_character_, length(target_missing)),
+  type = rep("Company", length(target_missing)),
+  revenue = rep(NA_real_, length(target_missing)),
+  product_services = rep(NA_character_, length(target_missing))
+)
+
+```
+
+
+```{r}
+
+#keep only id values from Nodes df also present in the edges df
+
+mc3_nodes_fishery_new_filtered <- mc3_nodes_fishery_new %>%
+  filter(id %in% c(mc3_edges_new_groupby$source, mc3_edges_new_groupby$target))
+```
+
+
+```{r}
+mc3_nodes_fishery_new_df <- bind_rows(mc3_nodes_fishery_new_filtered, source_missing_df, target_missing_df)
+```
+
+
+```{r}
+mc3_nodes_fishery_new_df <- mc3_nodes_fishery_new_df %>%
+  mutate(revenue_omu = as.character(revenue_omu))
+```
+
+
+```{r}
+mc3_nodes_fishery_grouped <- mc3_nodes_fishery_new_df %>%
+  group_by(id) %>%
+  summarize(
+    count = n(),
+    type_1 = ifelse(n() >= 1, type[1], NA),
+    type_2 = ifelse(n() >= 2, type[2], NA),
+    type_3 = ifelse(n() >= 3, type[3], NA),
+    country = ifelse(n() == 1, country, paste(unique(country), collapse = ", ")),
+    revenue_omu = ifelse(n() == 1, revenue_omu, paste(unique(revenue_omu), collapse = ", ")),
+    product_services = ifelse(n() == 1, product_services, paste(unique(product_services), collapse = ", "))
+  )
+```
+
+
+
+```{r}
+
+top_products <- mc3_nodes_fishery_grouped %>%
+  count(product_services, sort = TRUE) %>%
+  top_n(10)
+
+# Rename the columns
+top_products <- top_products %>%
+  rename(Products = product_services, Occurrences = n)
+
+# Print the table
+print(top_products)
+```
+
+
+
 
