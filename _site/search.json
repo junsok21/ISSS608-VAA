@@ -606,7 +606,7 @@
     "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#remove-non_targets-from-node_fishery",
     "title": "take home3",
     "section": "Remove non_targets from Node_fishery",
-    "text": "Remove non_targets from Node_fishery\n\n\nShow the code\nmc3_nodes_fishery_new <- mc3_nodes_fishery %>%\n  filter(!mc3_nodes_fishery$id %in% Non_targets$source)\n\n\n\nresult: none of the non-targets are in Node_fishery"
+    "text": "Remove non_targets from Node_fishery\n\n\nShow the code\nmc3_nodes_fishery_new <- mc3_nodes_fishery %>%\n  filter(!mc3_nodes_fishery$id %in% Non_targets$source)\n\n\n\nresult: none of the non-targets are in Node_fishery\n\n\nShow the code\nprint(\"jiawen\")\n\n\n[1] \"jiawen\""
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex08/data/geospatial/MPSZ-2019.html",
