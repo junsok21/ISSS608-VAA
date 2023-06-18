@@ -398,28 +398,6 @@ mc3_nodes_fishery_new <- mc3_nodes_fishery %>%
 ### result: none of the non-targets are in Node_fishery
 
 
-## Find company owners () linked to multiple companies, that's anomalies. 
-
-### export csv files 
-
-```{r}
-write.csv(mc3_edges_new, file='C:/Users/junso/Downloads/mc3_edges_new.csv')
-
-```
-
-
-```{r}
-mc3_edges_new %>%
-  group_by(target) %>%
-  filter(n_distinct(source) > 1) %>%
-  select(target) 
-
-mc3_edges_new %>%
-  group_by(target) %>%
-  summarise(count = n()) %>%
-  arrange(desc(count)) %>%
-  select(target, count)
-```
 
 ```{r}
 
@@ -543,9 +521,187 @@ top_products <- top_products %>%
 print(top_products)
 ```
 
-
 ```{r}
-print("Shaun")
+ids_fishing <- mc3_nodes_fishery_grouped %>%
+  filter(str_detect(product_services, paste(words_fishery, collapse = "|", sep = "")) | is.na(product_services)) %>%
+  pull(id)
+
 ```
 
 
+```{r}
+mc3_edges_fishery <- mc3_edges_new_groupby %>%
+  filter(source %in% ids_fishing)
+
+```
+
+
+```{r}
+mc3_nodes_fishery_ <- mc3_nodes_fishery_grouped %>%
+  filter(id %in% c(mc3_edges_fishery$source, mc3_edges_fishery$target))
+```
+
+
+
+```{r}
+
+mc3_fish_graph <- tbl_graph(nodes = mc3_nodes_fishery_,
+                       edges = mc3_edges_fishery,
+                       directed = FALSE) %>%
+  mutate(betweenness_centrality = centrality_betweenness()) %>%
+  ggraph(layout = "nicely") +
+  scale_edge_width(range = c(0.01, 6)) +
+  geom_node_point(aes(colour = type_1,
+                      size = betweenness_centrality)) +
+  theme_graph() +
+  labs(size = "Betweenness Centrality")
+
+mc3_fish_graph 
+```
+
+### can see that most of the type is "Company"
+
+
+```{r}
+mc3_edges_fishery_in <- mc3_edges_fishery %>%
+  rename(from = source, to = target)
+
+mc3_nodes_fishery_in <- mc3_nodes_fishery_ %>%
+  rename(group = type_1) 
+
+# Create a visNetwork object with nodes and edges
+visNetwork(nodes = mc3_nodes_fishery_in, edges = mc3_edges_fishery_in) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+  visLegend() %>%
+  visLayout(randomSeed = 123)
+```
+
+
+
+
+## Find company personnal names () linked to multiple companies, that's anomalies. 
+
+### export csv files 
+
+
+
+
+
+
+```{r}
+mc3_edges_fishery %>%
+  group_by(target) %>%
+  filter(n_distinct(source) > 1) %>%
+  select(target) 
+
+mc3_edges_fishery %>%
+  group_by(target) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  select(target, count)
+```
+
+
+```{r}
+write.csv(mc3_edges_fishery, file='C:/Users/junso/Downloads/mc3_edges_fishery.csv')
+
+```
+
+
+```{r}
+
+filtered_data <- mc3_edges_fishery %>%
+  group_by(target) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  select(target, count)
+
+filtered_data %>% 
+  group_by(count) %>% 
+  summarise(n = n()) %>% 
+  mutate(percentage = round(n/sum(n) * 100, 2)) %>% 
+  ggplot(aes(x = count, y = n, label = paste0(round(percentage, 2), "%"))) + 
+  geom_bar(stat = "identity", fill = "lightblue", color = "black") + 
+  xlab("Count") + 
+  ylab("n") + 
+  scale_x_continuous(breaks = unique(filtered_data$count)) + 
+  geom_text(position = position_stack(vjust = 0.5))
+```
+
+
+```{r}
+
+filtered_data2 <- mc3_edges_fishery %>%
+  group_by(target) %>%
+  summarise(count = n()) %>%
+  filter(count > 1) %>%
+  arrange(desc(count)) %>%
+  select(target, count)
+
+filtered_data2 %>%
+  group_by(count) %>% 
+  summarise(n = n()) %>% 
+  mutate(percentage = round(n/sum(n) * 100, 2)) %>% 
+  ggplot(aes(x = count, y = n, label = paste0(round(percentage, 2), "%"))) + 
+  geom_bar(stat = "identity", fill = "lightblue", color = "black") + 
+  xlab("Count") + 
+  ylab("n") + 
+  scale_x_continuous(breaks = unique(filtered_data$count)) + 
+  geom_text(position = position_stack(vjust = 0.5))
+```
+
+
+
+
+
+```{r}
+Michael_Johnson <- unique(mc3_edges_fishery_in$from[mc3_edges_fishery_in$to == "Michael Johnson"])
+
+Michael_Johnson_edges <- subset(mc3_edges_fishery_in, from %in% Michael_Johnson)
+
+Michael_Johnson_nodes <- subset(mc3_nodes_fishery_, id %in% c(Michael_Johnson_edges$from, Michael_Johnson_edges$to))
+```
+
+
+```{r}
+# Create a visNetwork
+visNetwork(nodes = Michael_Johnson_nodes, edges = Michael_Johnson_edges) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+  visLegend() %>%
+  visLayout(randomSeed = 123)
+```
+
+```{r}
+
+
+top5 <- mc3_edges_fishery_in$from[mc3_edges_fishery_in$to %in% c("Michael Johnson", "John Smith", "Brian Smith", "Jennifer Johnson", "Michael Smith")]
+
+```
+
+```{r}
+
+top5_edges <- subset(mc3_edges_fishery_in, from %in% top5)
+
+top5_nodes <- subset(mc3_nodes_fishery_, id %in% c(top5_edges$from, top5_edges$to))
+```
+
+```{r}
+
+
+# Create a visNetwork
+visNetwork(nodes = top5_nodes, edges = top5_edges) %>%
+  visIgraphLayout(layout = "layout_with_fr") %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+  visLegend() %>%
+  visLayout(randomSeed = 123)
+```
+
+## Conclusion
+
+Through data exploration, I was able to observe a few anomalies.
+
+1. individuals who have ownership in multiple companies. From analyzing three sub-network graphs, it was observed that these individuals tend to own a combination of large and small firms from various countries. While there is a possibility that everything is legitimate, it would be beneficial for FishEye to conduct a more thorough examination of these individuals who own companies across borders, particularly when they are the sole owners of smaller entities, as exemplified in the case of 'James Brown'.
+
+2. All of the id type is "Company", surprisingly no beneficial owners and company contacts. Sort of expected looking from the distribution of types for Node dataframe intiially, but it might be noteworthy to investigate further what id type mean for illegal fishery. 
