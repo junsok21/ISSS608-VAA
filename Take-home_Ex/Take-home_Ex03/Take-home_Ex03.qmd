@@ -23,15 +23,25 @@ format:
     reader-mode: true
 ---
 
+## 1. Overview
+
+Through visual analytics, FishEye aims to identify companies potentially engaged in illegal fishing and protect marine species affected by it.
+
+In this context, this page will attempt to answer the following task under Mini-Challenge 3 of the VAST Challenge: Use visual analytics to identify anomalies in the business groups present in the knowledge graph. Limit your response to 400 words and 5 images.
+
+### 1.1 Import Libraries and Datasets
+
 ```{r}
 pacman::p_load(jsonlite, tidygraph, ggraph, 
                visNetwork, graphlayouts, ggforce, 
-               skimr, tidytext, tidyverse, ggplot2, skimr, tm)
+               skimr, tidytext, tidyverse, ggplot2)
 ```
 
 ```{r}
 mc3_data <- fromJSON("data/MC3.json")
 ```
+
+### 1.2 Extract Edges
 
 ```{r}
 mc3_edges <- as_tibble(mc3_data$links) %>% 
@@ -45,17 +55,19 @@ mc3_edges <- as_tibble(mc3_data$links) %>%
   ungroup()
 ```
 
-###Check missing values
+#### 1.2.1 Check missing value in Edges
 
 ```{r}
 colSums(is.na(mc3_edges))
 ```
 
-### Check dupes
+#### 1.2.2 Check duplicates in Edges
 
 ```{r}
 mc3_edges[duplicated(mc3_edges),]
 ```
+
+### 1.3 Extract & View Nodes
 
 ```{r}
 mc3_nodes <- as_tibble(mc3_data$nodes) %>%
@@ -71,7 +83,7 @@ mc3_nodes <- as_tibble(mc3_data$nodes) %>%
 mc3_nodes
 ```
 
-### CHeck missing value
+#### 1.3.1 Check Missing value in Nodes
 
 ```{r}
 colSums(is.na(mc3_nodes))
@@ -79,15 +91,18 @@ colSums(is.na(mc3_nodes))
 
 21515 missing from revenue_omu column
 
-### Check Dupes
+### 1.3.2 Check Duplicates in Nodes
 
 ```{r}
 mc3_nodes[duplicated(mc3_nodes),]
 ```
 
-### There are 2595 dupe entries
 
-### remove dupliated rows.
+::: callout-note
+There are 2595 dupe entries
+:::
+
+#### 1.3.3 remove dupliated rows in Nodes.
 
 ```{r}
 mc3_nodes_unique <- distinct(mc3_nodes)
@@ -95,35 +110,15 @@ mc3_nodes_unique <- distinct(mc3_nodes)
 mc3_nodes_unique
 ```
 
-```{r}
 
-top_products <- mc3_nodes_unique %>%
-  count(product_services, sort = TRUE) %>%
-  top_n(10)
-
-# Rename the columns
-top_products <- top_products %>%
-  rename(Products = product_services, Occurrences = n)
-
-# Print the table
-print(top_products)
-```
-```
-
-
-
-
+### 1.4 Explore Edge data structure
 
 ```{r}
 skim(mc3_edges)
-```
 
-
-```{r}
-```{r}
 DT::datatable(mc3_edges)
 ```
-
+#### 1.4.1 Edges by Type
 
 ```{r}
 
@@ -131,9 +126,7 @@ ggplot(data = mc3_edges,
        aes(x = type)) +
   geom_bar()
 ```
-
-
-
+### 1.5 Initial Network Graph Analysis (Kick-starter)
 
 ```{r}
 
@@ -181,16 +174,33 @@ ggraph(layout = "fr") +
   theme(text = element_text(family = "sans"))
 ```
 
+### 1.4 Explore Node data structure
+
+```{r}
+
+top_products <- mc3_nodes_unique %>%
+  count(product_services, sort = TRUE) %>%
+  top_n(10)
+
+# Rename the columns
+top_products <- top_products %>%
+  rename(Products = product_services, Occurrences = n)
+
+# Print the table
+print(top_products)
+```
+
+::: callout-note
+charactor(0) and Unknown will be cleaned later.
+:::
+
 ```{r}
 
 skim(mc3_nodes1)
-```
-
-
-```{r}
-
 DT::datatable(mc3_nodes1)
 ```
+
+
 
 ```{r}
 
@@ -199,17 +209,11 @@ ggplot(data = mc3_nodes1,
   geom_bar()
 ```
 
-##Text Sensing with tidytext
+## 2 Text Analytics with tidytext
 
-```{r}
+### In this section, I will perform basic text sensing using appropriate functions of tidytext package.
 
-#mc3_nodes1 %>% 
- #   mutate(n_fish = str_count(product_services, "fish") 
-```
-
-
-
-## Record those "Unknwon" or"Charactor(0)" to "NA"
+### 2.1 Record those "Unknwon" or"Charactor(0)" to "NA"
 
 ```{r}
 
@@ -217,27 +221,8 @@ mc3_nodes1$product_services[mc3_nodes1$product_services == "Unknown"] <- NA
 mc3_nodes1$product_services[mc3_nodes1$product_services == "character(0)"] <- NA
 ```
 
-### 
 
-```{r}
-
-mc3_nodes_filtered <- mc3_nodes1 %>% 
-  mutate(n_fish = str_count(product_services, "fish")) %>%
-  arrange(desc(n_fish))
-```
-
-```{r}
-
-mc3_nodes_filtered
-```
-
-```{r}
-
-ggplot(data = mc3_nodes_filtered, aes(x = type, y = n_fish)) +
-geom_bar(stat = "identity")
-```
-
-## Tokenisation
+### 2.2 Tokenisation
 
 
 ```{r}
@@ -250,7 +235,7 @@ token_nodes <- mc3_nodes1 %>%
                 strip_punct = TRUE)
 ```
 
-### Visualize the words extracted.
+### 2.3 Visualize the words extracted
 
 ```{r}
 token_nodes %>%
@@ -264,8 +249,10 @@ token_nodes %>%
       labs(x = "Count",
       y = "Unique words",
       title = "Count of unique words found in product_services field")
-```
 
+
+```
+### 2.4 Remove stopwords
 
 ```{r}
 
@@ -287,17 +274,14 @@ stopwords_removed %>%
       title = "Count of unique words found in product_services field")
 ```
 
-### remove the rows with stop words + "NA"
+### 2.5 remove the rows with stop words + "NA"
 
 
 ```{r}
 stopwords_removed <- token_nodes %>% 
   anti_join(stop_words) %>%
   filter(!is.na(word)) 
-```
 
-
-```{r}
 stopwords_removed %>%
   count(word, sort = TRUE) %>%
   top_n(15) %>%
@@ -311,46 +295,25 @@ stopwords_removed %>%
       y = "Unique words",
       title = "Count of Top 15 unique words found in product_services field")+
   theme_minimal() 
-
 ```
 
-```{r}
-length(unique(stopwords_removed$word))
-```
+### 2.5.1 Count of words after removing stopwords and NA
 
 ```{r}
-skim(mc3_nodes)
-```
 
-```{r}
 stopwords_removed_unique <- stopwords_removed %>% 
   filter(!is.na(word))
-```
 
-
-```{r}
 length(unique(stopwords_removed_unique$word))
+
+
+length(unique(token_nodes$word))
 ```
+::: callout-note
+Looks much neater now, about ~200 unique removed as part of stopwords removal. However, there are still with a lot of words not related to fishery 
+:::
 
-```{r}
-stopwords_removed_unique %>%
-  count(word, sort = TRUE) %>%
-  top_n(15) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(x = word, y = n)) +
-  geom_col() +
-  geom_text(aes(label = n), vjust = 0.5, hjust = -0.1, size = 2, color = "black")+
-  xlab(NULL) +
-  coord_flip() +
-      labs(x = "Count",
-      y = "Unique words",
-      title = "Count of Top 15 unique words found in product_services field")+
-  theme_minimal() 
-
-```
-
-
-
+### 2.6 Filter by those words only related to fishery
 
 ```{r}
 words_fishery <- c("fish", "seafood", "frozen", "food", "fresh", "salmon", "shrimp", "shellfish", "sea", "squid", "water", "seafoods", "foods", "marine", "shipment", "shipping", "pier", "carp", "cod", "herring", "lichen", "mackerel", "pollock", "shark", "tuna", "ocean", "oyster", "clam", "lobster", "crab", "crustaceans", "crustacean", "bass")
@@ -362,7 +325,7 @@ print(mc3_nodes_fishery)
 ```
 
 
-## Match ID from Nodes to Source in Edge
+### 2.7 Match ID from Nodes to Source in Edge
 
 
 ```{r}
@@ -372,14 +335,14 @@ targets <- mc3_edges %>%
 ```
 
 
-## Filter mc_edges with  the extracted targets
+#### 2.7.1 Filter mc_edges with  the extracted targets
 
 ```{r}
 mc3_edges_new <- mc3_edges %>%
   filter(target %in% targets$target)
 ```
 
-## Targets that are not selected from mc3_edges
+#### 2.7.2 Define "Non_targets" a targets that are not selected from mc3_edges
 
 ```{r}
 Non_targets <- mc3_edges %>%
@@ -388,24 +351,28 @@ Non_targets <- mc3_edges %>%
 ```
 
   
-## Remove non_targets from Node_fishery
+#### 2.7.3 Remove non_targets from Node_fishery
 
 ```{r}
 mc3_nodes_fishery_new <- mc3_nodes_fishery %>%
   filter(!mc3_nodes_fishery$id %in% Non_targets$source)
 ```
 
-### result: none of the non-targets are in Node_fishery
+::: callout-note
+Result: none of the non-targets are in Node_fishery
+:::
 
-
+### 2.8 Additional Data Clean Ups
 
 ```{r}
-
-# maximum length of source is whopping 213, meaning that lot of c(",) inputs.
 skim(mc3_edges_new)
 ```
 
+::: callout-note
+Maximum length of source is whopping 213, this is likely an input with lot of c(",") values. 
+:::
 
+#### 2.8.1 Clean up Source Values 
 
 ```{r}
 mc3_edges_new_filtered <- mc3_edges_new %>%
@@ -438,15 +405,18 @@ mc3_edges_new_groupby <- mc3_edges_new2 %>%
 ```{r}
 #The maximum length of source looks more reasonable now at 57, suggesting all the multiple values have been dropped. 
 skim(mc3_edges_new_groupby)
-```
 
-```{r}
 class(mc3_edges_new_groupby)
 ```
 
+::: callout-note
+Maximum length of source has reduced from 213 to 57, after removing lot of c(",") values. 
+:::
+
+
+### 2.9 Link the latest edges to the nodes
 
 ```{r}
-#link the latest edges to the nodes
 
 source_missing <-setdiff(mc3_edges_new_groupby$source, mc3_nodes_fishery_new$id)
 
@@ -470,25 +440,20 @@ target_missing_df <- tibble(
 
 ```
 
+### 2.10 Keep only id values from Nodes df also present in the edges df
 
 ```{r}
-
-#keep only id values from Nodes df also present in the edges df
 
 mc3_nodes_fishery_new_filtered <- mc3_nodes_fishery_new %>%
   filter(id %in% c(mc3_edges_new_groupby$source, mc3_edges_new_groupby$target))
-```
 
-
-```{r}
 mc3_nodes_fishery_new_df <- bind_rows(mc3_nodes_fishery_new_filtered, source_missing_df, target_missing_df)
-```
 
-
-```{r}
 mc3_nodes_fishery_new_df <- mc3_nodes_fishery_new_df %>%
   mutate(revenue_omu = as.character(revenue_omu))
 ```
+
+### 2.11 Cleaned Nodes Dataframe grouped by Id
 
 
 ```{r}
@@ -505,7 +470,7 @@ mc3_nodes_fishery_grouped <- mc3_nodes_fishery_new_df %>%
   )
 ```
 
-
+### 2.11.1 Check Top 10 products of the Cleaned up Nodes Dataframe
 
 ```{r}
 
@@ -521,27 +486,22 @@ top_products <- top_products %>%
 print(top_products)
 ```
 
+### 2.12 Define Fishery Edges and Nodes by selecting only those IDs that are related to Product_services in Words_Fishery defined earlier
+
 ```{r}
 ids_fishing <- mc3_nodes_fishery_grouped %>%
   filter(str_detect(product_services, paste(words_fishery, collapse = "|", sep = "")) | is.na(product_services)) %>%
   pull(id)
 
-```
-
-
-```{r}
 mc3_edges_fishery <- mc3_edges_new_groupby %>%
   filter(source %in% ids_fishing)
 
-```
-
-
-```{r}
 mc3_nodes_fishery_ <- mc3_nodes_fishery_grouped %>%
   filter(id %in% c(mc3_edges_fishery$source, mc3_edges_fishery$target))
 ```
 
 
+## 3 Network Analysis with Refined Graph with the Fishery edges and nodes
 
 ```{r}
 
@@ -559,34 +519,14 @@ mc3_fish_graph <- tbl_graph(nodes = mc3_nodes_fishery_,
 mc3_fish_graph 
 ```
 
-### can see that most of the type is "Company"
 
-
-```{r}
-mc3_edges_fishery_in <- mc3_edges_fishery %>%
-  rename(from = source, to = target)
-
-mc3_nodes_fishery_in <- mc3_nodes_fishery_ %>%
-  rename(group = type_1) 
-
-# Create a visNetwork object with nodes and edges
-visNetwork(nodes = mc3_nodes_fishery_in, edges = mc3_edges_fishery_in) %>%
-  visIgraphLayout(layout = "layout_with_fr") %>%
-  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
-  visLegend() %>%
-  visLayout(randomSeed = 123)
-```
+::: callout-note
+I can observe that almost all of the refined Nodes has type equal to "Company", with a few nodes with relatively high betweenness centrality near the center
+:::
 
 
 
-
-## Find company personnal names () linked to multiple companies, that's anomalies. 
-
-### export csv files 
-
-
-
-
+### 3.1 Find Targets () linked to multiple companies, which may be indications of anomalies. 
 
 
 ```{r}
@@ -604,10 +544,11 @@ mc3_edges_fishery %>%
 
 
 ```{r}
-write.csv(mc3_edges_fishery, file='C:/Users/junso/Downloads/mc3_edges_fishery.csv')
-
+#write.csv(mc3_edges_fishery, file='C:/Users/junso/Downloads/mc3_edges_fishery.csv')
 ```
 
+
+#### 3.2 Distribution of Targets linked to multiple companies
 
 ```{r}
 
@@ -628,7 +569,11 @@ filtered_data %>%
   scale_x_continuous(breaks = unique(filtered_data$count)) + 
   geom_text(position = position_stack(vjust = 0.5))
 ```
+::: callout-note
+Nearly 80% of the targets have count of 1. Decided to use the Pareto rules to look at the top 20% only.
+:::
 
+#### 3.2.2 Distribution of Targets linked to at least 2 companies
 
 ```{r}
 
@@ -651,9 +596,11 @@ filtered_data2 %>%
   geom_text(position = position_stack(vjust = 0.5))
 ```
 
+::: callout-note
+Left with about 500 companies. The future work is that there should be a way to define the cut-off value on company ownership for creating a subgraph that focuses on company owners who own relatively higher number of comapnies. Concious of time, I have decided to look at just top 5 targets in terms of the number of counts, starting with Michael Johnson.
+:::
 
-
-
+#### 3.2.3 Network Analysis on Michael Johnson
 
 ```{r}
 Michael_Johnson <- unique(mc3_edges_fishery_in$from[mc3_edges_fishery_in$to == "Michael Johnson"])
@@ -672,6 +619,12 @@ visNetwork(nodes = Michael_Johnson_nodes, edges = Michael_Johnson_edges) %>%
   visLegend() %>%
   visLayout(randomSeed = 123)
 ```
+
+::: callout-note
+Michael Johnson is a sole owner of many smaller entities. Revenue of most of the companies are unknown, hinting us some of these might be paper companies
+:::
+
+#### 3.2.4 Network Analysis on Top 5 Targets
 
 ```{r}
 
@@ -698,10 +651,16 @@ visNetwork(nodes = top5_nodes, edges = top5_edges) %>%
   visLayout(randomSeed = 123)
 ```
 
-## Conclusion
+
+::: callout-note
+The analysis on Top 5 targets verifies that Michael Johnson is not a unique case. Top 5 targets are sole owners of many smaller entities. Revenue of most of the companies they own are unknown, hinting us some of these might be paper companies possibly involved in transshipment. 
+:::
+
+
+## 4 Conclusion
 
 Through data exploration, I was able to observe a few anomalies.
 
-1. individuals who have ownership in multiple companies. From analyzing three sub-network graphs, it was observed that these individuals tend to own a combination of large and small firms from various countries. While there is a possibility that everything is legitimate, it would be beneficial for FishEye to conduct a more thorough examination of these individuals who own companies across borders, particularly when they are the sole owners of smaller entities, as exemplified in the case of 'James Brown'.
+1. Individuals who have ownership in multiple companies. From analyzing three sub-network graphs, it was observed that these individuals tend to own a combination of large and small firms from various countries. While there is a possibility that everything is legitimate, it would be beneficial for FishEye to conduct a  thorough examination of these individuals who own companies across borders, particularly when they are the sole owners of smaller entities, as exemplified in the case of 'Michael Johnson' and other top targets. Revenue of most of the companies they own are unknown from the data given, which may require authorities and regulatory bodies' scrutiny
 
-2. All of the id type is "Company", surprisingly no beneficial owners and company contacts. Sort of expected looking from the distribution of types for Node dataframe intiially, but it might be noteworthy to investigate further what id type mean for illegal fishery. 
+2. Almost all of the refined Nodes has type equal to "Company", there were no beneficial owners and company contacts. This is expected looking from the distribution of types for Node Dataframe intiially, but it might be noteworthy to investigate further what id type mean for illegal fishery. 
